@@ -1,0 +1,13 @@
+function ccr() {
+	gcc "$1" && ./a.out
+}
+
+function cxxr() {
+	g++ "$1" && ./a.out
+}
+
+function gitacp() {
+	git add .
+	git commit -m "$1"
+	git push
+}
