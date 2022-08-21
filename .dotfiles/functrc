@@ -1,9 +1,19 @@
+function cdexec() {
+	cd "$( dirname "$( realpath "$@" )" )"
+	basename "$@"
+}
+
+function touchx() {
+	touch "$@"
+	chmod +x "$@"
+}
+
 function ccr() {
-	gcc "$1" && ./a.out
+	gcc "$@" && ./a.out
 }
 
 function cxxr() {
-	g++ "$1" && ./a.out
+	g++ "$@" && ./a.out
 }
 
 function gitacp() {
