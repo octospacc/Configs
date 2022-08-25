@@ -18,6 +18,10 @@ function cxxr() {
 
 function gitacp() {
 	git add .
-	git commit -m "$1"
-	git push
+	git commit -m "$1" && git push
+}
+
+function gitacpc() {
+	git add .
+	git commit && git push
 }
