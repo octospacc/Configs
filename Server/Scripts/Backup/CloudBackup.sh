@@ -5,15 +5,14 @@
 
 GitPush() {
 	git add .
-	git commit -m "Auto Backup $(date)"
+	git commit -m "Auto-Backup $(date) (${RunDate})"
 	git push
 }
 
 cd ./Server-Backup-Limited
-#mkdir -p ./tmp && cd ./tmp
-Item="Invidious-User" && cp "../../${Item}/Latest.7z" "./${Item}.7z" && ccencryptNow "./${Item}.7z" "${BackupKey_Git_Invidious}"
-Item="wallabag-data" && cp "../../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_wallabag}"
-Item="FreshRSS-data" && cp "../../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
+Item="Invidious-User" && cp "../${Item}/Latest.7z" "./${Item}.7z" && ccencryptNow "./${Item}.7z" "${BackupKey_Git_Invidious}"
+Item="wallabag-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_wallabag}"
+Item="FreshRSS-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
 GitPush
 cd ..
 
