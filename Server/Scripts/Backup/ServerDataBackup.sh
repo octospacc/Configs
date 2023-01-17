@@ -1,7 +1,7 @@
 #!/bin/sh
 # Make local backups of the data from the hosted services
 
-source ./BackupGlobals.cfg
+. "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
 SimpleBackup() {
 	mkdir -p "./$1"

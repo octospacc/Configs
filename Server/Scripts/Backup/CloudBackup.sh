@@ -1,7 +1,7 @@
 #!/bin/sh
 # Upload a backup of the Local Cloud and of local services backups to other clouds
 
-source ./BackupGlobals.cfg
+. "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
 GitPush() {
 	git add .
@@ -9,7 +9,13 @@ GitPush() {
 	git push
 }
 
-#Server-Backup-Limited
+cd ./Server-Backup-Limited
+#mkdir -p ./tmp && cd ./tmp
+Item="Invidious-User" && cp "../../${Item}/Latest.7z" "./${Item}.7z" && ccencryptNow "./${Item}.7z" "${BackupKey_Git_Invidious}"
+Item="wallabag-data" && cp "../../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_wallabag}"
+Item="FreshRSS-data" && cp "../../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
+GitPush
+cd ..
 
 #CloudDir="/home/octo/Cloud"
 #cd "$CloudDir"
