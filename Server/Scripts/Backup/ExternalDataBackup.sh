@@ -11,4 +11,4 @@ curl \
 	-H "${Invidious_Backup_Cookie}" \
 	| 7z a -mmt1 -mx9 "./${Name}/${RunDate}.7z" -si && cp "./${Name}/${RunDate}.7z" "./${Name}/Latest.7z"
 
-date > "${BackupsBase}/Last.log"
+WriteLastLog

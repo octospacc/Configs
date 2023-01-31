@@ -41,4 +41,4 @@ SimpleBackup "FreshRSS-data"
 #	cd ..
 #done
 
-date > "${BackupsBase}/Last.log"
+WriteLastLog

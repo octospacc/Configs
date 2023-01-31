@@ -4,9 +4,14 @@
 . "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
 GitPush() {
-	git add .
-	git commit -m "Auto-Backup $(date) (${RunDate})"
-	git push
+	Msg="Auto-Backup $(date) (${RunDate})"
+	git add . && git commit -m "${Msg}" && git push
+}
+
+GitPullPushPath() {
+	BackPath="$(pwd)"
+	cd "$1" && git pull && GitPush
+	cd "${BackPath}"
 }
 
 cd ./Server-Backup-Limited
@@ -15,6 +20,8 @@ Item="wallabag-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccen
 Item="FreshRSS-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
 GitPush
 cd ..
+
+#GitPullPushPath "./Personal-Game-Saves"
 
 #CloudDir="/home/octo/Cloud"
 #cd "$CloudDir"
@@ -51,4 +58,4 @@ cd ..
 #done
 #GitPush
 
-date > "${BackupsBase}/Last.log"
+WriteLastLog
