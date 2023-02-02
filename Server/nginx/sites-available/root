@@ -1,0 +1,16 @@
+server {
+	listen 80;
+	rewrite ^ https://$host$request_uri? permanent;
+}
+
+server {
+	listen 443 ssl;
+	server_name hlb0.octt.eu.org;
+	ssl_certificate /etc/letsencrypt/live/hlb0.octt.eu.org/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/hlb0.octt.eu.org/privkey.pem; 
+	ssl_prefer_server_ciphers on;
+	location / {
+		root /Server/www/root;
+		try_files $uri =404;
+	}
+}

@@ -21,7 +21,7 @@ Item="FreshRSS-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccen
 GitPush
 cd ..
 
-#GitPullPushPath "./Personal-Game-Saves"
+GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 
 #CloudDir="/home/octo/Cloud"
 #cd "$CloudDir"
