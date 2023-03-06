@@ -14,14 +14,34 @@ GitPullPushPath() {
 	cd "${BackPath}"
 }
 
+BackPathCrypt() {
+	Folder="$1"
+	Key="$2"
+	Ext="$([ -z "$3" ] && echo ".tar.xz" || echo "$3")"
+	cp "../${Folder}/Latest${Ext}" "./${Folder}${Ext}" && \
+	ccencryptNow "./${Folder}${Ext}" "${Key}"
+}
+
 cd ./Server-Backup-Limited
-Item="Invidious-User" && cp "../${Item}/Latest.7z" "./${Item}.7z" && ccencryptNow "./${Item}.7z" "${BackupKey_Git_Invidious}"
-Item="wallabag-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_wallabag}"
-Item="FreshRSS-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
+BackPathCrypt "Invidious-User" "${BackupKey_Git_Invidious}" ".7z"
+#BackPathCrypt "wallabag-data" "${BackupKey_Git_wallabag}"
+BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
+#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
+#Item="Invidious-User" && cp "../${Item}/Latest.7z" "./${Item}.7z" && ccencryptNow "./${Item}.7z" "${BackupKey_Git_Invidious}"
+#Item="wallabag-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_wallabag}"
+#Item="FreshRSS-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_FreshRSS}"
+#Item="shiori-data" && cp "../${Item}/Latest.tar.xz" "./${Item}.tar.xz" && ccencryptNow "./${Item}.tar.xz" "${BackupKey_Git_Shiori}"
+GitPush
+cd ..
+
+cd ./Articles-Backup-Private
+rm -rf ./shiori-data
+cp -r "../shiori-data/Latest.d" "./shiori-data"
 GitPush
 cd ..
 
 GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
+#GitPullPushPath "/media/Disk/Configs"
 
 #CloudDir="/home/octo/Cloud"
 #cd "$CloudDir"

@@ -24,7 +24,7 @@ do
 	# Declaration of all cronjobs like they are normal shell commands, made easy thanks to integrated functions.
 
 	# Daily checking for if the script is working
-		Ifn $Job1 && If $(IsDayMin $(hm2s 5 30)) && date > /tmp/CronTest.log && Job1=1
+		Ifn $Job1 && If $(IsDayMin $(hm2s 5 30)) && date > /tmp/CronTest.log && journalctl -u diycron >> /tmp/CronTest.log && Job1=1
 	# RSS to Misskey at HH:15 and HH:45
 	#	If $(IsHourMin 15) || If $(IsHourMin 45) && sudo -u pi /Server/Bots/RSSToMisskey/Run.RSSToMisskey
 	# Downsync updated content to the sitoctt and push
