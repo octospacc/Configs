@@ -1,0 +1,4 @@
+#!/bin/sh
+#Data="/sdcard/Android/data/org.dolphinemu.dolphinemu/files/GC"
+#rclone copy "$Data" "swiss":Cloud/Saves/Dolphin/GC
+rclone copy "/sdcard/DraStic/backup" "pi:/Cloud/Repos/Personal-Game-Saves/Saves/DraStic/backup"

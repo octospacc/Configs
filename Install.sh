@@ -4,10 +4,8 @@ cd "$( dirname "$( realpath "$0" )" )"
 CopyCfg() {
 	for Type in "" "."
 	do
-		#[ "$(whoami)" = "root" ] && cp -r $1/Root/$Type* /
-		#cp -r $1/Home/$Type* ~/
-		[ "$(whoami)" = "root" ] && [ -d "$1/Root" ] && cp $(find "$1/Root" -maxdepth 1 -mindepth 1 -name "$Type*") /
-		[ -d "$1/Home" ] && cp $(find "$1/Home" -maxdepth 1 -mindepth 1 -name "$Type*") ~/
+		[ "$(whoami)" = "root" ] && [ -d "$1/Root" ] && cp -r $(find "$1/Root" -maxdepth 1 -mindepth 1 -name "$Type*") /
+		[ -d "$1/Home" ] && cp -r $(find "$1/Home" -maxdepth 1 -mindepth 1 -name "$Type*") ~/
 	done
 }
 

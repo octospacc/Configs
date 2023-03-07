@@ -1,0 +1,19 @@
+#!/bin/sh
+
+DestVolume="-33.0"
+
+cd /sdcard/DCIM/ScreenRecorder
+[ ! -z "$1" ] && File="$1" || File="$(ls *.mp4 -t | head -n1)"
+
+ffmpeg \
+	-i "$File" \
+	-af volumedetect -f null /dev/null \
+	> ffmpeg.volumedetect.log 2>&1
+StartVolume="$(grep mean_volume ffmpeg.volumedetect.log | tail -n1 | rev | cut -d' ' -f2 | rev)"
+
+Volume="$(echo "0 - ($StartVolume - $DestVolume)" | bc)"
+ffmpeg \
+	-i "$File" \
+	-af volume="${Volume}dB" \
+	-vf crop=600:450:60:463 \
+	"New-$File"

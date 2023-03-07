@@ -1,0 +1,2 @@
+#!/bin/sh
+sh /sdcard/Documents/OcttKB.Raw/local.sh pull
