@@ -5,6 +5,10 @@ cd ./Root
 cp -v /etc/diycron ./etc/diycron
 
 cp -v \
+	/etc/systemd/system/diycron.service \
+	./etc/systemd/system/
+
+cp -v \
 	/etc/nginx/sites-available/*.conf /etc/nginx/sites-available/*.old \
 	./etc/nginx/sites-available/
 

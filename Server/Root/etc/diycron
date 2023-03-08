@@ -18,27 +18,20 @@ ResetJobs() {
 	done
 }
 
+echo "------------------------------------------"
+echo "[ $(date "+%F | %T") ] diycron started."
+
 ResetJobs
 while true
 do
-	# Declaration of all cronjobs like they are normal shell commands, made easy thanks to integrated functions.
-
-	# Daily checking for if the script is working
-		Ifn $Job1 && If $(IsDayMin $(hm2s 5 30)) && date > /tmp/CronTest.log && journalctl -u diycron >> /tmp/CronTest.log && Job1=1
-	# RSS to Misskey at HH:15 and HH:45
-	#	If $(IsHourMin 15) || If $(IsHourMin 45) && sudo -u pi /Server/Bots/RSSToMisskey/Run.RSSToMisskey
-	# Downsync updated content to the sitoctt and push
-	#	If $(IsHourMin 25) && sudo -u pi /Server/Scripts/sitoctt-Downsync.sh
+	# Inside here, declaration of all cronjobs like normal shell commands, made easy thanks to integrated functions.
 
 	# Trinity rotation backup system: each of the following scripts is executed every 3 days, in a rotation where at least 1 script runs every night at 3:00
 		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 0 && Job2=1 && sleep 60 && /Server/Scripts/Backup/ExternalDataBackup.sh #& # Local backup of external data
 		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 1 && Job2=1 && sleep 60 && /Server/Scripts/Backup/ServerDataBackup.sh #& # Big backup of local services data
 		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 2 && Job2=1 && sleep 60 && /Server/Scripts/Backup/CloudBackup.sh #& # Cloud backup of the locally backed-up data
 
-	# Clean Misskey cache daily
-	#	If $(IsDayMin $(hm2s 2 30)) && curl 'https://miss.octt.eu.org/api/admin/drive/clean-remote-files' -X POST -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Content-Type: text/plain;charset=UTF-8' -H 'Referer: https://miss.octt.eu.org/' -H 'Origin: https://miss.octt.eu.org' -H 'DNT: 1' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-origin' -H 'Connection: keep-alive' --data-raw '{"i":"TOKEN"}'
 	# System reboot every X days at 4:30 AM
-		#If $(IsDayMin $(hm2s 4 30)) && test $(($(date +%s) / 86400 % 2)) = 0 && sleep 60 && reboot
 		#If $(IsDayMin $(hm2s 4 30)) && test $(($(date +%s) / 86400 % 2)) = 0 && sleep 60 && reboot # System reboot every 2 days (every even day)
 		If $(IsDayMin $(hm2s 4 30)) && sleep 60 && reboot # System reboot every night
 

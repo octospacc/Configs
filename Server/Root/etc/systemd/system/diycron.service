@@ -1,0 +1,14 @@
+[Unit]
+Description=diycron
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+CPUQuota=80%
+MemoryMax=350M
+User=root
+ExecStart=sh -c "cat /var/log/diycron.log >> /var/log/diycron.log.old; sh /etc/diycron > /var/log/diycron.log"
+[Install]
+WantedBy=multi-user.target
