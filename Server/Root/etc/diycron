@@ -21,7 +21,9 @@ ResetJobs() {
 echo "------------------------------------------"
 echo "[ $(date "+%F | %T") ] diycron started."
 
+set -x # Enable command echo
 ResetJobs
+
 while true
 do
 	# Inside here, declaration of all cronjobs like normal shell commands, made easy thanks to integrated functions.

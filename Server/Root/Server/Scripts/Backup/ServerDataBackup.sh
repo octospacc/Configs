@@ -5,17 +5,21 @@
 
 SimpleBackup() {
 	# $1: Folder
-	# $2: Optional prefix in /Server path
-	mkdir -p "./$1"
-	tar cvJSf "./$1/${RunDate}.tar.xz" "/Server/$2/$1" && \
-	cp "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
-	rm -rf "./$1/Latest.d"
-	cp -r "/Server/$2/$1" "./$1/Latest.d"
+	# $2: Optional prefix relative to path in /Server
+	mkdir -vp "./$1"
+	#tar cvJSf "./$1/${RunDate}.tar.xz" "/Server/$2/$1" && \
+	#cp "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
+	EchoExec rm -rf "./$1/Latest.d"
+	EchoExec cp -rp "/Server/$2/$1" "./$1/Latest.d"
+	EchoExec tar cJSf "./$1/${RunDate}.tar.xz" "./$1/Latest.d" && \
+	cp -v "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"	
 }
 
 #SimpleBackup "wallabag-data"
 SimpleBackup "FreshRSS-data"
+
 SimpleBackup "shiori-data" "Shiori"
+rm -v "./shiori-data/Latest.d/archive/*"
 
 # GoToSocial
 #Name="GoToSocial"

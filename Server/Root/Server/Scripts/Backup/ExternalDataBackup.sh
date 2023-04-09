@@ -5,10 +5,10 @@
 
 # Invidious personal JSON dump
 Name="Invidious-User"
-mkdir -p "./${Name}"
+mkdir -vp "./${Name}"
 curl \
 	"${Invidious_Backup_URL}/subscription_manager?action_takeout=1&format=json" \
 	-H "${Invidious_Backup_Cookie}" \
-	| 7z a -mmt1 -mx9 "./${Name}/${RunDate}.7z" -si && cp "./${Name}/${RunDate}.7z" "./${Name}/Latest.7z"
+	| 7z a -mmt1 -mx9 "./${Name}/${RunDate}.7z" -si && cp -v "./${Name}/${RunDate}.7z" "./${Name}/Latest.7z"
 
 WriteLastLog
