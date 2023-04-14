@@ -13,7 +13,7 @@ hm2s() { echo $((($1*60*60) + ($2*60))); }
 # Setting variables (that always have a "Job" prefix) for each job, to prevent multiple execution.
 ResetJobs() {
 	for Job in \
-		1 2
+		1 2 Certs
 	do eval "Job$Job=0"
 	done
 }
@@ -37,8 +37,11 @@ do
 		#If $(IsDayMin $(hm2s 4 30)) && test $(($(date +%s) / 86400 % 2)) = 0 && sleep 60 && reboot # System reboot every 2 days (every even day)
 		If $(IsDayMin $(hm2s 4 30)) && sleep 60 && reboot # System reboot every night
 
+	# Try to renew SSL certs every 5 days at 4 AM
+		Ifn $JobCerts && If $(IsDayMin $(hm2s 4 0)) && test $(($(date +%s) / 86400 % 9)) = 0 && JobCerts=1 && sleep 60 && /Server/Scripts/RenewCerts.sh
+
 	# Status of all jobs is reset at one time of the day, before or after all execute or have executed (in time).
 		If $(IsDayMin $(hm2s 0 0)) && ResetJobs
 	# Cooldown to wait at each cycle, to save on resources (Should always be less than 60 seconds!).
-	sleep 5
+		sleep 5
 done
