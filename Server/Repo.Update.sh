@@ -23,12 +23,14 @@ mkcd ./Root
 		/Server/Scripts/Backup/*.sh /Server/Scripts/Backup/*.cfg \
 		./Server/Scripts/Backup/
 
+	cpdir Transfers/aria2/Conf
+
 cd ..
 
 mkcd ./Home
-	mkdir -vp ./.config
-	for p in \
-		aria2
-	do
-		cp -vrT /$h/.config/$p ./.config/$p
-	done
+	#mkdir -vp ./.config
+	#for p in \
+	#	aria2
+	#do
+	#	cp -vrT /$h/.config/$p ./.config/$p
+	#done
