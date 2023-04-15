@@ -1,0 +1,10 @@
+#!/bin/sh
+cd /Transfers/aria2
+
+# Backup
+7z a -mx9 -mmt1 "./Service.$(date "+%Y-%m-%d.%H:%M:%S").bak" ./Service
+
+# Download updated trackers from today's lists, add them to aria2.conf
+# with bt-tracker= ...
+
+aria2c --conf-path=./Conf/Server.conf --daemon=false
