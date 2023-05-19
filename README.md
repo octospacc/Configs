@@ -9,5 +9,5 @@ Install oneliner (run as root to install system components) (as I just said, don
 --> elif [ -n "$(which wget)" ]; <!--
 --> then wget -O - "$Url" | sh; <!--
 --> else echo "Missing tools. Install \`curl\` or \`wget\`."; <!--
---> fi
-</pre>
+--> fi; <!--
+--></pre>

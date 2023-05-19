@@ -4,6 +4,7 @@ cd "$( dirname "$( realpath "$0" )" )"
 
 h=home/pi
 
+SetScope Root
 mkcd ./Root
 	mkdir -vp ./etc
 	for p in \
@@ -34,6 +35,7 @@ mkcd ./Root
 
 cd ..
 
+SetScope Home
 mkcd ./Home
 	#mkdir -vp ./.config
 	#for p in \

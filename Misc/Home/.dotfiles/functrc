@@ -1,7 +1,9 @@
-function cdexec() {
-	cd "$( dirname "$( realpath "$@" )" )"
-	basename "$@"
-}
+#!/bin/sh
+
+#function cdexec() {
+#	cd "$( dirname "$( realpath "$@" )" )"
+#	basename "$@"
+#}
 
 function touchx() {
 	touch "$@"
@@ -11,17 +13,13 @@ function touchx() {
 function ccr() {
 	gcc "$@" && ./a.out
 }
-
 function cxxr() {
 	g++ "$@" && ./a.out
 }
 
 function gitacp() {
-	git add .
-	git commit -m "$1" && git push
+	git add . && git commit -m "$1" && git push
 }
-
 function gitacpc() {
-	git add .
-	git commit && git push
+	git add . && git commit && git push
 }

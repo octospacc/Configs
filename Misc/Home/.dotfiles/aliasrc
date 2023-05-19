@@ -1,11 +1,18 @@
+#!/bin/sh
+
 alias cd..="cd .."
 
-alias miclisten="pactl load-module module-loopback latency_msec=1"
-alias micunlisten="pactl unload-module module-loopback"
+alias MicListen="pactl load-module module-loopback latency_msec=1"
+alias MicUnlisten="pactl unload-module module-loopback"
 
 # alias tcpdumpeth="sudo tcpdump -i enp37s0 -l -Q in"
 alias termbin="nc termbin.com 9999"
 
 alias gitclone1="git clone --depth 1"
+alias gitclone9="git clone --depth 2147483647"
 
-alias pngcrs="pngcrush -brute"
+alias pngcrs="pngcrush -brute -reduce"
+alias pngqnt100="pngquant -v --strip --speed=1 --quality=100-100"
+alias pngqnt="pngquant -v --strip --speed=1"
+
+#alias chrootrun-jammy="sudo chrootrun /opt/rootfs/UbuntuJammy"

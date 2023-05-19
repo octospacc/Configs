@@ -1,9 +1,16 @@
+#!/bin/sh
+
 export EDITOR=micro
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.local/sbin
 
 export ANDROID_HOME=$HOME/Android/Sdk
 export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/platform-tools
+
 export PATH=$PATH:$HOME/.cargo/bin
 
-export PATH=$PATH:$HOME/.local/bin
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export DOTNET_ROOT=$HOME/dotnet
+export PATH=$PATH:$HOME/dotnet
