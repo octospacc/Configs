@@ -1,0 +1,12 @@
+[Unit]
+Description=ShioriFeed
+After=network.target
+[Service]
+User=pi
+Type=exec
+ExecStart=/Server/Shiori/ShioriFeed.py
+WorkingDirectory=/Server/Shiori/
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=default.target

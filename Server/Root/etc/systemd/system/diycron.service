@@ -5,9 +5,9 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
-RestartSec=5
-CPUQuota=85%
-MemoryMax=384M
+RestartSec=10
+CPUQuota=90%
+MemoryMax=400M
 User=root
 ExecStart=sh -c "cat /var/log/diycron.log >> /var/log/diycron.log.old; sh /etc/diycron > /var/log/diycron.log"
 [Install]

@@ -1,0 +1,12 @@
+[Unit]
+Description=WebFileManager
+After=network.target
+[Service]
+User=root
+Type=exec
+ExecStart=/usr/local/bin/filebrowser -a 0.0.0.0 -p 7580 -r /
+WorkingDirectory=/Server/SpaccCloud
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=default.target

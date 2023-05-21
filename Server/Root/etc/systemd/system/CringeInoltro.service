@@ -1,0 +1,12 @@
+[Unit]
+Description=CringeInoltro
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=15
+User=pi
+ExecStart=/Server/CringeInoltro/StartCringeInoltro.py
+[Install]
+WantedBy=multi-user.target

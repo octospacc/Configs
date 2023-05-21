@@ -11,6 +11,32 @@ mkcd(){
 	cd "$1"
 }
 
+CpItem(){
+	[ -f "${ScopePath}$1" ] && cpfile "$1"
+	[ -d "${ScopePath}$1" ] && cpdir "$1"
+}
+
+CpItems(){
+	for p in $@
+	do
+		CpItem "$p"
+	done
+}
+
+CpSub(){
+	LBase="$1"; shift
+	RBase="$1"; shift
+	for s in $@
+	do
+		CpItems ${LBase}${s}${RBase}
+	done
+}
+
+CpSufx(){
+	Base="$1"; shift
+	CpSub "$Base" "" $@
+}
+
 cpfile(){
     echo "$1"
     rm -rf "./$1" && \

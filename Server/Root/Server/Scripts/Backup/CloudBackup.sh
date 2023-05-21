@@ -27,6 +27,7 @@ BackPathCrypt "Invidious-User" "${BackupKey_Git_Invidious}" ".7z"
 #BackPathCrypt "wallabag-data" "${BackupKey_Git_wallabag}"
 BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
 #BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
+# "${BackupKey_Git_aria2}" ".7z"
 GitPush
 cd ..
 

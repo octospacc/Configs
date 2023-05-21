@@ -6,32 +6,24 @@ h=home/pi
 
 SetScope Root
 mkcd ./Root
-	mkdir -vp ./etc
-	for p in \
-		diycron
+	CpSufx etc/ diycron
+
+	for f in \
+		diycron ncshell OneShot.AfterBoot bittorrentd \
+		Shiori ShioriFeed \
+		CringeInoltro WinDog \
+		TelegramIndex WebFileManager \
+		SpaccCraft
 	do
-		cp -v /etc/$p ./etc/$p
+		cpfile "etc/systemd/system/$f.service"
 	done
 
-	mkdir -vp ./etc/systemd/system
-	cp -v \
-		/etc/systemd/system/diycron.service \
-		./etc/systemd/system/
+	CpSufx "etc/nginx/sites-available/*." conf old
+	CpSufx "Server/Scripts/Backup/*." sh cfg
+	CpItem Server/Scripts/OneShot.AfterBoot.sh
 
-	mkdir -vp ./etc/nginx/sites-available
-	cp -v \
-		/etc/nginx/sites-available/*.conf /etc/nginx/sites-available/*.old \
-		./etc/nginx/sites-available/
-
-	mkdir -vp ./Server/Scripts/Backup
-	cp -v \
-		/Server/Scripts/Backup/*.sh /Server/Scripts/Backup/*.cfg \
-		./Server/Scripts/Backup/
-
-	mkdir -vp ./Server/Start
-	cp -v /Server/Start/bittorrentd ./Server/Start/
-
-	cpdir Transfers/aria2/Conf
+	CpItem Server/Start/bittorrentd
+	CpItem Transfers/aria2/Conf
 
 cd ..
 

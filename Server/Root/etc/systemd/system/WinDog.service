@@ -1,0 +1,12 @@
+[Unit]
+Description=windog
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=pi
+ExecStart=/Server/WinDog/StartWinDog
+[Install]
+WantedBy=multi-user.target

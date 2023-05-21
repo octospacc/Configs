@@ -1,0 +1,12 @@
+[Unit]
+Description=ncshell
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=ncshell
+ExecStart=/usr/bin/ncshell
+[Install]
+WantedBy=multi-user.target

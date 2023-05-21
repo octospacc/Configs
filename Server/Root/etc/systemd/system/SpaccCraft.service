@@ -1,0 +1,14 @@
+[Unit]
+Description=spacccraft
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+CPUQuota=85%
+MemoryMax=384M
+User=pi
+ExecStart=/Server/SpaccCraft/StartSpaccCraft.sh
+[Install]
+WantedBy=multi-user.target

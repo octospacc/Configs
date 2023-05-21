@@ -1,0 +1,11 @@
+[Unit]
+Description=OneShot.AfterBoot
+After=network.target
+[Service]
+User=root
+Type=exec
+ExecStart=/Server/Scripts/OneShot.AfterBoot.sh
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=default.target

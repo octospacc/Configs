@@ -2,9 +2,13 @@
 cd /Transfers/aria2
 
 # Backup
-7z a -mx9 -mmt1 "./Service.$(date "+%Y-%m-%d.%H:%M:%S").bak" ./Service
+7z a -mx9 -mmt1 "./Service.$(date "+%Y-%m-%d.%H:%M:%S").bak.7z" ./Service
 
-# Download updated trackers from today's lists, add them to aria2.conf
-# with bt-tracker= ...
+while true
+do
+	# Get global trackers updated today
+	Trackers="$(for i in $(curl https://ngosang.github.io/trackerslist/trackers_best.txt; curl https://newtrackon.com/api/stable); do echo "$i,"; done)"
+	[ -n "$Trackers" ] && Trackers="--bt-tracker=$(echo $(echo "$Trackers") | sed 's/ //g')"
 
-aria2c --conf-path=./Conf/Server.conf --daemon=false
+	aria2c --conf-path=./Conf/Server.conf --daemon=false $Trackers
+done

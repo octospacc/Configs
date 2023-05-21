@@ -1,0 +1,12 @@
+[Unit]
+Description=Shiori
+After=network.target
+[Service]
+User=pi
+Type=exec
+ExecStart=/Server/Shiori/shiori --portable serve -p 8076
+WorkingDirectory=/Server/Shiori/
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=default.target

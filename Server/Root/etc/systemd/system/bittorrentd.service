@@ -1,0 +1,16 @@
+[Unit]
+Description=BitTorrent Daemon
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=pi
+#User=qbtuser
+ExecStart=/Server/Start/bittorrentd
+#CPUQuota=96%
+#MemoryHigh=300M
+#MemoryMax=384M
+[Install]
+WantedBy=multi-user.target
