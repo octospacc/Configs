@@ -6,9 +6,9 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=10
-CPUQuota=85%
-MemoryMax=384M
+CPUQuota=75%
+MemoryMax=350M
 User=pi
-ExecStart=/Server/SpaccCraft/StartSpaccCraft.sh
+ExecStart=script /dev/null -c "export TERM=vt100; screen -S SpaccCraft sh /Server/SpaccCraft/StartSpaccCraft.sh"
 [Install]
 WantedBy=multi-user.target

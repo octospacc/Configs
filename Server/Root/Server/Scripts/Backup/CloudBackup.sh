@@ -37,6 +37,14 @@ EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
 GitPush
 cd ..
 
+#McServer="SpaccCraft"
+#McEdition="Beta-1.7.3"
+#cd "/Server/${McServer}/spacccraft-b1.7.3-backup4"
+#cp ../*.sh ./
+#cp -rT "${BackupsBase}/${McServer}/${McEdition}/Latest" "./${McEdition}"
+#GitPush
+#cd "${BackupsBase}"
+
 GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 #GitPullPushPath "/media/Disk/Configs"
 
