@@ -7,6 +7,6 @@ Type=simple
 Restart=always
 RestartSec=10
 User=pi
-ExecStart=/Server/WinDog/StartWinDog
+ExecStart=/Server/Bots/WinDog/StartWinDog
 [Install]
 WantedBy=multi-user.target

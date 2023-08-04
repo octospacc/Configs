@@ -1,25 +1,37 @@
 #!/bin/sh
 # Make local backups of the data from the hosted services
 
+set -e
 . "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
-SimpleBackup() {
+SimpleCompress(){
+	EchoExec tar cJSf "$1.tar.xz" "$2"
+}
+
+SimpleBackup(){
 	# $1: Folder
 	# $2: Optional prefix relative to path in /Server
 	mkdir -vp "./$1"
 	#tar cvJSf "./$1/${RunDate}.tar.xz" "/Server/$2/$1" && \
 	#cp "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
-	EchoExec rm -rf "./$1/Latest.d"
+	EchoExec rm "./$1/Latest.tar.xz" || true
+	EchoExec rm -rf "./$1/Latest.d" || true
 	EchoExec cp -rp "/Server/$2/$1" "./$1/Latest.d"
-	EchoExec tar cJSf "./$1/${RunDate}.tar.xz" "./$1/Latest.d" && \
-	cp -v "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"	
+	SimpleCompress "./$1/${RunDate}" "./$1/Latest.d"
+	#cp -v "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
+	EchoExec ln -s "./${RunDate}.tar.xz" "./$1/Latest.tar.xz"
 }
 
 #SimpleBackup "wallabag-data"
 SimpleBackup "FreshRSS-data"
 
 SimpleBackup "shiori-data" "Shiori"
-rm -v "./shiori-data/Latest.d/archive/*"
+rm -v ./shiori-data/Latest.d/archive/* || true
+
+SimpleBackup SpaccBBS www
+EchoExec mariadb-dump phpBB > ./SpaccBBS/Db.Latest.sql
+SimpleCompress "./SpaccBBS/Db.${RunDate}.sql" ./SpaccBBS/Db.Latest.sql
+EchoExec ln -s "./Db.${RunDate}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz
 
 # GoToSocial
 #Name="GoToSocial"

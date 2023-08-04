@@ -1,6 +1,7 @@
 #!/bin/sh
 # Upload a backup of the Local Cloud and of local services backups to other clouds
 
+set -e
 . "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
 GitPush() {
@@ -37,13 +38,34 @@ EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
 GitPush
 cd ..
 
-#McServer="SpaccCraft"
-#McEdition="Beta-1.7.3"
-#cd "/Server/${McServer}/spacccraft-b1.7.3-backup4"
-#cp ../*.sh ./
-#cp -rT "${BackupsBase}/${McServer}/${McEdition}/Latest" "./${McEdition}"
-#GitPush
-#cd "${BackupsBase}"
+exit
+
+cd ./SpaccBBS-Backup-phpBB-2023
+EchoExec rm -rf ./SpaccBBS || true
+EchoExec cp -rp ../SpaccBBS/Latest.d ./SpaccBBS
+EchoExec cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz
+for File in \
+	./Db.sql.tar.xz \
+	./SpaccBBS/config.php \
+	./SpaccBBS/arrowchat/includes/config.php \
+; do ccencryptNow "$File" "$BackupKey_Git_SpaccBBS"
+done
+GitPush
+cd ..
+
+McServer="SpaccCraft"
+McEdition="Beta-1.7.3"
+McGit="spacccraft-b1.7.3-backup4"
+DestPath="${BackupsBase}/${McServer}/${McGit}"
+if [ -d "${DestPath}" ]
+then
+	#cd "/Server/${McServer}"
+	cd "${BackupsBase}/${McServer}"
+	rm -rf "${DestPath}/${McEdition}"
+	cp ./*.sh "${DestPath}/"
+	cp -r "./${McEdition}/Latest.d" "${DestPath}/${McEdition}"
+	GitPullPushPath "${DestPath}"
+fi
 
 GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 #GitPullPushPath "/media/Disk/Configs"

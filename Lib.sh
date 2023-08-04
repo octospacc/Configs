@@ -18,8 +18,7 @@ CpItem(){
 
 CpItems(){
 	for p in $@
-	do
-		CpItem "$p"
+	do CpItem "$p"
 	done
 }
 
@@ -27,8 +26,7 @@ CpSub(){
 	LBase="$1"; shift
 	RBase="$1"; shift
 	for s in $@
-	do
-		CpItems ${LBase}${s}${RBase}
+	do CpItems /${LBase}${s}${RBase}
 	done
 }
 
