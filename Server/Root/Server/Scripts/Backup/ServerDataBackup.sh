@@ -23,9 +23,10 @@ SimpleBackup(){
 }
 
 #SimpleBackup "wallabag-data"
-SimpleBackup "FreshRSS-data"
+#SimpleBackup "FreshRSS-data"
+SimpleBackup FreshRSS www
 
-SimpleBackup "shiori-data" "Shiori"
+SimpleBackup shiori-data Shiori
 rm -v ./shiori-data/Latest.d/archive/* || true
 
 SimpleBackup SpaccBBS www

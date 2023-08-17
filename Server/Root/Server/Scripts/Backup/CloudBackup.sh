@@ -23,50 +23,61 @@ BackPathCrypt() {
 	ccencryptNow "./${Folder}${Ext}" "${Key}"
 }
 
-cd ./Server-Backup-Limited
-BackPathCrypt "Invidious-User" "${BackupKey_Git_Invidious}" ".7z"
-#BackPathCrypt "wallabag-data" "${BackupKey_Git_wallabag}"
-BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
-#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
-# "${BackupKey_Git_aria2}" ".7z"
-GitPush
-cd ..
+ServerBackupLimited(){
+	cd ./Server-Backup-Limited
+	#BackPathCrypt "Invidious-User" "${BackupKey_Git_Invidious}" ".7z"
+	#BackPathCrypt "wallabag-data" "${BackupKey_Git_wallabag}"
+	BackPathCrypt FreshRSS "${BackupKey_Git_FreshRSS}"
+	#BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
+	#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
+	# "${BackupKey_Git_aria2}" ".7z"
+	GitPush
+	cd ..
+}
 
-cd ./Articles-Backup-Private
-EchoExec rm -rf ./shiori-data
-EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
-GitPush
-cd ..
+ArticlesBackupPrivate(){
+	cd ./Articles-Backup-Private
+	EchoExec rm -rf ./shiori-data
+	EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
+	GitPush
+	cd ..
+}
 
-exit
+SpaccBbsBackup(){
+	cd ./SpaccBBS-Backup-phpBB-2023
+	EchoExec rm -rf ./SpaccBBS || true
+	EchoExec cp -rp ../SpaccBBS/Latest.d ./SpaccBBS
+	EchoExec cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz
+	for File in \
+		./Db.sql.tar.xz \
+		./SpaccBBS/config.php \
+		./SpaccBBS/arrowchat/includes/config.php \
+	; do ccencryptNow "$File" "$BackupKey_Git_SpaccBBS"
+	done
+	GitPush
+	cd ..
+}
 
-cd ./SpaccBBS-Backup-phpBB-2023
-EchoExec rm -rf ./SpaccBBS || true
-EchoExec cp -rp ../SpaccBBS/Latest.d ./SpaccBBS
-EchoExec cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz
-for File in \
-	./Db.sql.tar.xz \
-	./SpaccBBS/config.php \
-	./SpaccBBS/arrowchat/includes/config.php \
-; do ccencryptNow "$File" "$BackupKey_Git_SpaccBBS"
-done
-GitPush
-cd ..
+SpaccBbsBackup(){
+	McServer="SpaccCraft"
+	McEdition="Beta-1.7.3"
+	McGit="spacccraft-b1.7.3-backup4"
+	DestPath="${BackupsBase}/${McServer}/${McGit}"
+	if [ -d "${DestPath}" ]
+	then
+		#cd "/Server/${McServer}"
+		cd "${BackupsBase}/${McServer}"
+		rm -rf "${DestPath}/${McEdition}"
+		cp ./*.sh "${DestPath}/"
+		cp -r "./${McEdition}/Latest.d" "${DestPath}/${McEdition}"
+		GitPullPushPath "${DestPath}"
+	fi
+}
 
-McServer="SpaccCraft"
-McEdition="Beta-1.7.3"
-McGit="spacccraft-b1.7.3-backup4"
-DestPath="${BackupsBase}/${McServer}/${McGit}"
-if [ -d "${DestPath}" ]
-then
-	#cd "/Server/${McServer}"
-	cd "${BackupsBase}/${McServer}"
-	rm -rf "${DestPath}/${McEdition}"
-	cp ./*.sh "${DestPath}/"
-	cp -r "./${McEdition}/Latest.d" "${DestPath}/${McEdition}"
-	GitPullPushPath "${DestPath}"
-fi
-
+ServerBackupLimited
+ArticlesBackupPrivate
+SpaccBbsBackup
+SpaccCraftBackup
 GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 #GitPullPushPath "/media/Disk/Configs"
 

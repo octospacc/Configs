@@ -18,7 +18,9 @@ mkcd ./Root
 		cpfile "etc/systemd/system/$f.service"
 	done
 
+	CpItem etc/nginx/nginx.conf
 	CpSufx "etc/nginx/sites-available/*." conf old
+	CpItem etc/tor/torrc
 	CpSufx "Server/Scripts/Backup/*." sh cfg
 	CpItem Server/Scripts/OneShot.AfterBoot.sh
 
