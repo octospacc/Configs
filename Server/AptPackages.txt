@@ -1,0 +1,14 @@
+# Misc
+apt-file curl wget netcat-openbsd git htop micro nano mc
+
+# Archives and crypto
+p7zip-full ccrypt
+
+# Web
+certbot nginx nginx-extras php php-fpm php-curl php-zip php-xml php-json php-mbstring
+
+# Web database
+mariadb-server php-db php-mysql php-sqlite3
+
+# Many services
+python3 python3-pip python3-magic
