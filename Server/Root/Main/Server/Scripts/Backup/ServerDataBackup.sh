@@ -16,23 +16,30 @@ SimpleBackup(){
 	#cp "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
 	EchoExec rm "./$1/Latest.tar.xz" || true
 	EchoExec rm -rf "./$1/Latest.d" || true
-	EchoExec cp -rp "/Server/$2/$1" "./$1/Latest.d"
+	EchoExec cp -rp "/Main/Server/$2/$1" "./$1/Latest.d"
 	SimpleCompress "./$1/${RunDate}" "./$1/Latest.d"
 	#cp -v "./$1/${RunDate}.tar.xz" "./$1/Latest.tar.xz"
 	EchoExec ln -s "./${RunDate}.tar.xz" "./$1/Latest.tar.xz"
 }
 
+DoBackupShiori(){
+	SimpleBackup shiori-data Shiori
+	rm -v ./shiori-data/Latest.d/archive/* || true
+}
+
+DoBackupSpaccBBS(){
+	SimpleBackup SpaccBBS www
+	lxc-attach Debian2023 -- sh -c "mariadb-dump phpBB > ${PWD}/SpaccBBS/Db.Latest.sql"
+	SimpleCompress "./SpaccBBS/Db.${RunDate}.sql" ./SpaccBBS/Db.Latest.sql
+	EchoExec ln -s "./Db.${RunDate}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz
+}
+
 #SimpleBackup "wallabag-data"
 #SimpleBackup "FreshRSS-data"
 SimpleBackup FreshRSS www
-
-SimpleBackup shiori-data Shiori
-rm -v ./shiori-data/Latest.d/archive/* || true
-
-SimpleBackup SpaccBBS www
-EchoExec mariadb-dump phpBB > ./SpaccBBS/Db.Latest.sql
-SimpleCompress "./SpaccBBS/Db.${RunDate}.sql" ./SpaccBBS/Db.Latest.sql
-EchoExec ln -s "./Db.${RunDate}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz
+SimpleBackup n8n-data
+DoBackupShiori
+DoBackupSpaccBBS
 
 # GoToSocial
 #Name="GoToSocial"

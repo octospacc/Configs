@@ -2,13 +2,15 @@
 # diycron: Script to be running (as a root daemon) as a (non-conflicting) cron alternative which simply works.
 # Note: Except when required by the shell, we use 0=false, 1=true for internal commands, for consistency.
 
-If() { test "$1" = 1 && return 0 || return 1; }
-Ifn() { test "$1" = 0 && return 0 || return 1; }
+If(){ test "$1" = 1 && return 0 || return 1 ;}
+Ifn(){ test "$1" = 0 && return 0 || return 1 ;}
 
-GetDaySeconds() { echo "$(date -d "1970-01-01 UTC $(date +%T)" +%s)"; }
-IsDayMin() { test $(($(GetDaySeconds)>$1)) = 1 && test $(($(GetDaySeconds)<$1+60)) = 1 && echo 1 || echo 0; }
-IsHourMin() { test "$1" = "$(date +%M)" && echo 1 || echo 0; }
-hm2s() { echo $((($1*60*60) + ($2*60))); }
+GetDaySeconds(){ echo "$(date -d "1970-01-01 UTC $(date +%T)" +%s)" ;}
+IsDayMin(){ [ "$(GetDaySeconds)" -gt "$1" ]  && [ "$(GetDaySeconds)" -lt "$(($1 + 60))" ] && echo 1 || echo 0 ;}
+IsHourMin(){ [ "$1" = "$(date +%M)" ] && echo 1 || echo 0 ;}
+hm2s(){ echo $((($1*60*60) + ($2*60))) ;}
+
+Do(){ echo "Running: $@" && $@ ;}
 
 # Setting variables (that always have a "Job" prefix) for each job, to prevent multiple execution.
 ResetJobs() {
@@ -21,7 +23,7 @@ ResetJobs() {
 echo "------------------------------------------"
 echo "[ $(date "+%F | %T") ] diycron started."
 
-set -x # Enable command echo
+#set -x # Enable command echo
 ResetJobs
 
 while true
@@ -29,19 +31,19 @@ do
 	# Inside here, declaration of all cronjobs like normal shell commands, made easy thanks to integrated functions.
 
 	# Trinity rotation backup system: each of the following scripts is executed every 3 days, in a rotation where at least 1 script runs every night at 3:00
-		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 0 && Job2=1 && sleep 60 && /Server/Scripts/Backup/ExternalDataBackup.sh #& # Local backup of external data
-		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 1 && Job2=1 && sleep 60 && /Server/Scripts/Backup/ServerDataBackup.sh #& # Big backup of local services data
-		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 2 && Job2=1 && sleep 60 && /Server/Scripts/Backup/CloudBackup.sh #& # Cloud backup of the locally backed-up data
+		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 0 && Job2=1 && sleep 60 && Do sh /Main/Server/Scripts/Backup/ExternalDataBackup.sh #& # Local backup of external data
+		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 1 && Job2=1 && sleep 60 && Do sh /Main/Server/Scripts/Backup/ServerDataBackup.sh #& # Big backup of local services data
+		Ifn $Job2 && If $(IsDayMin $(hm2s 3 0)) && test $(($(date +%s) / 86400 % 3)) = 2 && Job2=1 && sleep 60 && Do sh /Main/Server/Scripts/Backup/CloudBackup.sh #& # Cloud backup of the locally backed-up data
 
 	# System reboot every X days at 4:30 AM
 		#If $(IsDayMin $(hm2s 4 30)) && test $(($(date +%s) / 86400 % 2)) = 0 && sleep 60 && reboot # System reboot every 2 days (every even day)
-		If $(IsDayMin $(hm2s 4 30)) && sleep 60 && reboot # System reboot every night
+	#	If $(IsDayMin $(hm2s 4 30)) && sleep 60 && reboot # System reboot every night
 
 	# Try to renew SSL certs every 5 days at 4 AM
-		Ifn $JobCerts && If $(IsDayMin $(hm2s 4 0)) && test $(($(date +%s) / 86400 % 9)) = 0 && JobCerts=1 && sleep 60 && /Server/Scripts/RenewCerts.sh
+		Ifn $JobCerts && If $(IsDayMin $(hm2s 4 0)) && test $(($(date +%s) / 86400 % 9)) = 0 && JobCerts=1 && sleep 60 && Do lxc-attach Debian2023 sh /Main/Server/Scripts/RenewCerts.sh
 
 	# Status of all jobs is reset at one time of the day, before or after all execute or have executed (in time).
-		If $(IsDayMin $(hm2s 0 0)) && ResetJobs
+		If $(IsDayMin $(hm2s 0 0)) && Do ResetJobs
 	# Cooldown to wait at each cycle, to save on resources (Should always be less than 60 seconds!).
 		sleep 5
 done

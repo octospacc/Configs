@@ -21,11 +21,13 @@ mkcd ./Root
 	CpItem etc/nginx/nginx.conf
 	CpSufx "etc/nginx/sites-available/*." conf old
 	CpItem etc/tor/torrc
-	CpSufx "Server/Scripts/Backup/*." sh cfg
-	CpItem Server/Scripts/OneShot.AfterBoot.sh
+	CpSufx "Main/Server/Scripts/Backup/*." sh cfg
+	CpSufx "Main/Server/Scripts/Interactive/*." sh
+	CpItem Main/Server/Scripts/OneShot.AfterBoot.sh
+	CpItem Main/Server/Scripts/RenewCerts.sh
 
-	CpItem Server/Start/bittorrentd
-	CpItem Transfers/aria2/Conf
+	CpItem Main/Server/Start/bittorrentd
+	CpItem Main/Transfers/aria2/Conf
 
 cd ..
 

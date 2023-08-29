@@ -36,11 +36,14 @@ CpSufx(){
 }
 
 cpfile(){
-    echo "$1"
-    rm -rf "./$1" && \
-    mkdir -p "./$1" && \
-    rm -rf "./$1" && \
-	cp --no-target-directory "${ScopePath}$1" "./$1"
+	if [ -f "${ScopePath}$1" ]
+	then
+		echo "$1"
+		rm -rf "./$1" && \
+		mkdir -p "./$1" && \
+		rm -rf "./$1" && \
+		cp --no-target-directory "${ScopePath}$1" "./$1"
+	fi
 }
 
 cpdir(){

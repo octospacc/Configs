@@ -24,27 +24,28 @@ BackPathCrypt() {
 }
 
 ServerBackupLimited(){
-	cd ./Server-Backup-Limited
+	EchoExec cd ./Server-Backup-Limited
 	#BackPathCrypt "Invidious-User" "${BackupKey_Git_Invidious}" ".7z"
 	#BackPathCrypt "wallabag-data" "${BackupKey_Git_wallabag}"
 	BackPathCrypt FreshRSS "${BackupKey_Git_FreshRSS}"
 	#BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
 	#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
+	BackPathCrypt n8n-data "${BackupKey_Git_n8n}"
 	# "${BackupKey_Git_aria2}" ".7z"
 	GitPush
-	cd ..
+	EchoExec cd ..
 }
 
 ArticlesBackupPrivate(){
-	cd ./Articles-Backup-Private
+	EchoExec cd ./Articles-Backup-Private
 	EchoExec rm -rf ./shiori-data
 	EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
 	GitPush
-	cd ..
+	EchoExec cd ..
 }
 
-SpaccBbsBackup(){
-	cd ./SpaccBBS-Backup-phpBB-2023
+DoSpaccBbsBackup(){
+	EchoExec cd ./SpaccBBS-Backup-phpBB-2023
 	EchoExec rm -rf ./SpaccBBS || true
 	EchoExec cp -rp ../SpaccBBS/Latest.d ./SpaccBBS
 	EchoExec cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz
@@ -55,14 +56,15 @@ SpaccBbsBackup(){
 	; do ccencryptNow "$File" "$BackupKey_Git_SpaccBBS"
 	done
 	GitPush
-	cd ..
+	EchoExec cd ..
 }
 
-SpaccBbsBackup(){
+DoSpaccCraftBackup(){
 	McServer="SpaccCraft"
 	McEdition="Beta-1.7.3"
 	McGit="spacccraft-b1.7.3-backup4"
-	DestPath="${BackupsBase}/${McServer}/${McGit}"
+	DestPath="${BackupsBase}/${McGit}"
+	#DestPath="${BackupsBase}/${McServer}/${McGit}"
 	if [ -d "${DestPath}" ]
 	then
 		#cd "/Server/${McServer}"
@@ -76,9 +78,9 @@ SpaccBbsBackup(){
 
 ServerBackupLimited
 ArticlesBackupPrivate
-SpaccBbsBackup
-SpaccCraftBackup
-GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
+DoSpaccBbsBackup
+DoSpaccCraftBackup
+#GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 #GitPullPushPath "/media/Disk/Configs"
 
 #CloudDir="/home/octo/Cloud"
