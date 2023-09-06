@@ -1,5 +1,5 @@
 [Unit]
-Description=spacccraft
+Description=SpaccCraft
 After=network.target
 StartLimitIntervalSec=0
 [Service]
@@ -8,7 +8,7 @@ Restart=always
 RestartSec=10
 #CPUQuota=75%
 #MemoryMax=384M
-User=pi
-ExecStart=script /dev/null -c "export TERM=vt100; screen -S SpaccCraft sh /Server/SpaccCraft/StartSpaccCraft.sh"
+User=SpaccCraft
+ExecStart=/usr/bin/script /dev/null -c "export TERM=vt100; screen -S SpaccCraft sh /Main/Server/SpaccCraft/StartSpaccCraft.sh"
 [Install]
 WantedBy=multi-user.target

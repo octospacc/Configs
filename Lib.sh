@@ -2,8 +2,12 @@
 
 ScopePath=""
 SetScope(){
-    [ "$1" = "Root" ] && ScopePath="/"
-    [ "$1" = "Home" ] && ScopePath="${HOME}/"
+	if [ "$1" = "Root" ]
+	then ScopePath="/"
+	elif [ "$1" = "Home" ]
+	then ScopePath="${HOME}/"
+	#else ScopePath="$1/"
+	fi
 }
 
 mkcd(){
@@ -26,7 +30,15 @@ CpSub(){
 	LBase="$1"; shift
 	RBase="$1"; shift
 	for s in $@
-	do CpItems /${LBase}${s}${RBase}
+	do
+		PathBack="${PWD}"
+		cd "${ScopePath}"
+		# Here will happen any wildcard expansion
+		for i in ${LBase}${s}${RBase}
+		do
+			cd "${PathBack}"
+			CpItem "${i}"
+		done
 	done
 }
 

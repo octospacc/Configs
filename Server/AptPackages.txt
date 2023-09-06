@@ -5,7 +5,7 @@ apt-file curl wget netcat-openbsd git htop micro nano mc
 p7zip-full ccrypt
 
 # Web
-certbot nginx nginx-extras php php-fpm php-curl php-zip php-xml php-json php-mbstring
+certbot nginx nginx-extras php php-fpm php-curl php-zip php-xml php-json php-mbstring php-gmp
 
 # Web database
 mariadb-server php-db php-mysql php-sqlite3

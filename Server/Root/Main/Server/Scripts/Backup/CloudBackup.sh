@@ -4,23 +4,43 @@
 set -e
 . "$(dirname "$(realpath "$0")")/BackupGlobals.cfg"
 
-GitPush() {
+GitPush(){
 	Msg="Auto-Backup $(date) (${RunDate})"
 	git add . && git commit -m "${Msg}" && git push
 }
 
-GitPullPushPath() {
+GitPullPushPath(){
 	BackPath="$(pwd)"
 	cd "$1" && git pull && GitPush
 	cd "${BackPath}"
 }
 
-BackPathCrypt() {
+BackPathCrypt(){
+	_BackPathCrypt "$1" "$2" "$3"
+}
+
+_BackPathCrypt(){
 	Folder="$1"
 	Key="$2"
 	Ext="$([ -z "$3" ] && echo ".tar.xz" || echo "$3")"
-	cp -v "../${Folder}/Latest${Ext}" "./${Folder}${Ext}" && \
-	ccencryptNow "./${Folder}${Ext}" "${Key}"
+	Split="$4"
+	File="${Folder}${Ext}"
+	cp -v "../${Folder}/Latest${Ext}" "./${File}" && \
+	ccencryptNow "./${File}" "${Key}"
+	#DirContext="${PWD}"
+	#[ -n "${Split}" ] \
+	#	&& mkdir -p "./${File}.cpt.split" \
+	#	&& cd "./${File}.cpt.split" \
+	#	&& rm * || true \
+	#	&& split --bytes="${Split}" "../${File}.cpt" \
+	#	&& rm "../${File}.cpt" \
+	#;
+	#cd "${DirContext}"
+}
+
+BackPathCryptSplit(){
+	_BackPathCrypt "$1" "$2" "$3" 10M
+	#...
 }
 
 ServerBackupLimited(){
@@ -32,7 +52,7 @@ ServerBackupLimited(){
 	#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
 	BackPathCrypt n8n-data "${BackupKey_Git_n8n}"
 	# "${BackupKey_Git_aria2}" ".7z"
-	GitPush
+	GitPush || true
 	EchoExec cd ..
 }
 
@@ -40,7 +60,7 @@ ArticlesBackupPrivate(){
 	EchoExec cd ./Articles-Backup-Private
 	EchoExec rm -rf ./shiori-data
 	EchoExec cp -rp "../shiori-data/Latest.d" "./shiori-data"
-	GitPush
+	GitPush || true
 	EchoExec cd ..
 }
 
@@ -55,7 +75,7 @@ DoSpaccBbsBackup(){
 		./SpaccBBS/arrowchat/includes/config.php \
 	; do ccencryptNow "$File" "$BackupKey_Git_SpaccBBS"
 	done
-	GitPush
+	GitPush || true
 	EchoExec cd ..
 }
 
@@ -69,17 +89,17 @@ DoSpaccCraftBackup(){
 	then
 		#cd "/Server/${McServer}"
 		cd "${BackupsBase}/${McServer}"
-		rm -rf "${DestPath}/${McEdition}"
-		cp ./*.sh "${DestPath}/"
+		rm -rf "${DestPath}/${McEdition}" || true
+		cp ./*.sh "${DestPath}/" || true
 		cp -r "./${McEdition}/Latest.d" "${DestPath}/${McEdition}"
-		GitPullPushPath "${DestPath}"
+		GitPullPushPath "${DestPath}" || true
 	fi
 }
 
-ServerBackupLimited
-ArticlesBackupPrivate
-DoSpaccBbsBackup
-DoSpaccCraftBackup
+ServerBackupLimited || true
+ArticlesBackupPrivate || true
+DoSpaccBbsBackup || true
+DoSpaccCraftBackup || true
 #GitPullPushPath "/Cloud/Repos/Personal-Game-Saves"
 #GitPullPushPath "/media/Disk/Configs"
 

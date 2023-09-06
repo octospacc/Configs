@@ -1,0 +1,11 @@
+[Unit]
+Description=Windows 7 Earnapp 1 VM
+After=network.target
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+ExecStart=/bin/sh -c /Main/Server/VMs/Windows7Earnapp1.sh
+[Install]
+WantedBy=multi-user.target

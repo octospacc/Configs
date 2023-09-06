@@ -1,0 +1,11 @@
+[Unit]
+Description=SocatIpProxies
+After=network.target
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+ExecStart=/bin/sh -c /Main/Server/SocatIpProxies.sh
+[Install]
+WantedBy=multi-user.target

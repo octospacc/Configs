@@ -31,6 +31,7 @@ DoBackupSpaccBBS(){
 	SimpleBackup SpaccBBS www
 	lxc-attach Debian2023 -- sh -c "mariadb-dump phpBB > ${PWD}/SpaccBBS/Db.Latest.sql"
 	SimpleCompress "./SpaccBBS/Db.${RunDate}.sql" ./SpaccBBS/Db.Latest.sql
+	EchoExec rm ./SpaccBBS/Db.Latest.sql.tar.xz
 	EchoExec ln -s "./Db.${RunDate}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz
 }
 
