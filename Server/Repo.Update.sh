@@ -19,18 +19,16 @@ mkcd ./Root
 		CpItem "etc/systemd/system/${f}.timer"
 	done
 
+	CpSufx "Main/Server/VMs/*." sh
+
 	for f in \
 		WindowsServer2022 Windows7Earnapp1 \
 	; do CpItem "etc/systemd/system/Vm${f}.service"
 	done
 
-	#CpItem etc/nginx/nginx.conf
-	#CpSufx "etc/nginx/sites-available/*." conf old
-	#CpItem etc/tor/torrc
-
 	CpSufx "Main/Server/Scripts/*." sh
 	CpSufx "Main/Server/Scripts/Backup/*." sh cfg
-	CpSufx "Main/Server/Scripts/Interactive/*." sh
+	CpItem Main/Server/Scripts/Interactive
 	#CpItem Main/Server/Scripts/OneShot.AfterBoot.sh
 	#CpItem Main/Server/Scripts/RenewCerts.sh
 
@@ -41,11 +39,6 @@ mkcd ./Root
 		CpItem etc/nginx/nginx.conf
 		CpSufx "etc/nginx/sites-available/*." conf old
 		CpItem etc/tor/torrc
-
-		#for f in \
-		#	SpaccBBS.conf SpaccCloud.conf XSpacc.conf admin.conf analytics.conf articles.conf feeds.conf root.conf \
-		#; do CpItem "etc/nginx/sites-available/${f}"
-		#done
 
 	ScopePath=/var/lib/lxc/Ubuntu2023-SpaccCraft/rootfs/
 		CpItem etc/systemd/system/SpaccCraft.service
