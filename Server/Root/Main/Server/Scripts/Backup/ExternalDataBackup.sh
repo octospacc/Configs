@@ -14,5 +14,6 @@ InvidiousPersonalJsonDump(){
 	| 7z a -mmt1 -mx9 "./${Name}/${RunDate}.7z" -si && cp -v "./${Name}/${RunDate}.7z" "./${Name}/Latest.7z"
 }
 
-#InvidiousPersonalJsonDump
+#InvidiousPersonalJsonDump || true
+
 WriteLastLog

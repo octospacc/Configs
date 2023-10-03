@@ -4,10 +4,10 @@ After=network.target
 [Service]
 Type=simple
 Restart=always
-RestartSec=10
+RestartSec=15
 #CPUQuota=90%
 #MemoryMax=400M
 User=root
-ExecStart=sh -c "cat /var/log/diycron.log >> /var/log/diycron.log.old; sh /etc/diycron > /var/log/diycron.log"
+ExecStart=sh -c "cat /var/log/diycron.log >> /var/log/diycron.log.old; zx /etc/diycron.zx.mjs > /var/log/diycron.log"
 [Install]
 WantedBy=multi-user.target

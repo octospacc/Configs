@@ -1,5 +1,6 @@
 #!/bin/sh
 cd "$( dirname "$( realpath "$0" )" )"
+while true; do
 
 qemu-system-x86_64 \
 	-accel kvm \
@@ -13,4 +14,5 @@ qemu-system-x86_64 \
 #	-vnc :10 \
 #	-display none \
 
-while true; do sleep 999; done
+sleep 500
+done

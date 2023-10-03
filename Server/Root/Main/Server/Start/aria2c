@@ -1,0 +1,22 @@
+#!/bin/sh
+BkRunDate="$(date "+%Y-%m-%d.%H:%M:%S")"
+cd /Main/Transfers/aria2
+
+# Backup
+mkdir -p ./Working.bak.d
+rm -rf ./Working.bak.d/* || true
+cp -r ./Service ./Working.bak.d/Service
+mkdir -p ./Working.bak.d/Meta
+cp ../Storage/*.aria2 ./Working.bak.d/Meta/ || true
+7z a -mx9 -mmt1 "./Working.bak.${BkRunDate}.7z" ./Working.bak.d
+#rm ./Working.bak.Latest.7z || true
+#ln -s "./Working.bak.${BkRunDate}.7z" ./Working.bak.Latest.7z
+
+while true
+do
+	# Get global trackers updated today
+	Trackers="$(for i in $(curl https://ngosang.github.io/trackerslist/trackers_best.txt; curl https://newtrackon.com/api/stable); do echo "$i,"; done)"
+	[ -n "$Trackers" ] && Trackers="--bt-tracker=$(echo $(echo "$Trackers") | sed 's/ //g')"
+
+	aria2c --conf-path=./Conf/Server.conf --daemon=false $Trackers
+done

@@ -11,8 +11,15 @@ done
 #Backup \
 
 chown -R 1000:1000 /Main/Server/Desktop
-chown -R 101000:101000 /Main/Server/TelegramIndex-Fork
-#chmod -R 7777 /Main/Server/Desktop
+
+for Dir in \
+	Backup/SpaccCraft \
+	Server/TelegramIndex-Fork \
+; do chown -R 101000:101000 "/Main/${Dir}"
+done
 
 chown -R 100033:100033 /Main/Server/www
-#chmod -R 7777 /Main/Server/www
+#chmod -R 775 /Main/Server/www
+chmod -R 777 /Main/Server/www
+
+chown -R tux:tux /Main/Clouds/octt/

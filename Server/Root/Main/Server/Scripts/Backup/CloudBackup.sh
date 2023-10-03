@@ -51,7 +51,9 @@ ServerBackupLimited(){
 	#BackPathCrypt "FreshRSS-data" "${BackupKey_Git_FreshRSS}"
 	#BackPathCrypt "shiori-data" "${BackupKey_Git_Shiori}"
 	BackPathCrypt n8n-data "${BackupKey_Git_n8n}"
+	BackPathCrypt script-server "${BackupKey_Git_scriptserver}"
 	# "${BackupKey_Git_aria2}" ".7z"
+	BackPathCrypt docker-mailserver "${BackupKey_Git_dockermailserver}"
 	GitPush || true
 	EchoExec cd ..
 }
@@ -84,10 +86,8 @@ DoSpaccCraftBackup(){
 	McEdition="Beta-1.7.3"
 	McGit="spacccraft-b1.7.3-backup4"
 	DestPath="${BackupsBase}/${McGit}"
-	#DestPath="${BackupsBase}/${McServer}/${McGit}"
 	if [ -d "${DestPath}" ]
 	then
-		#cd "/Server/${McServer}"
 		cd "${BackupsBase}/${McServer}"
 		rm -rf "${DestPath}/${McEdition}" || true
 		cp ./*.sh "${DestPath}/" || true

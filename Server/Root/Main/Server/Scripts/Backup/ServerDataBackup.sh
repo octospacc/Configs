@@ -39,6 +39,8 @@ DoBackupSpaccBBS(){
 #SimpleBackup "FreshRSS-data"
 SimpleBackup FreshRSS www
 SimpleBackup n8n-data
+SimpleBackup script-server
+SimpleBackup docker-mailserver
 DoBackupShiori
 DoBackupSpaccBBS
 

@@ -1,5 +1,6 @@
 #!/bin/sh
 cd "$( dirname "$( realpath "$0" )" )"
+while true; do
 
 #qemu-system-x86_64 \
 /opt/usr/bin/qemu-system-x86_64 \
@@ -25,4 +26,5 @@ cd "$( dirname "$( realpath "$0" )" )"
 #	-vnc :10 \
 #	-display none \
 
-while true; do sleep 999; done
+sleep 999
+done

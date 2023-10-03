@@ -6,7 +6,7 @@ h=home/tux
 
 SetScope Root
 mkcd ./Root
-	CpSufx etc/ diycron
+	CpSufx etc/ diycron diycron.zx.mjs
 
 	for f in \
 		diycron ncshell OneShot.AfterBoot bittorrentd SocatIpProxies \
@@ -26,14 +26,14 @@ mkcd ./Root
 	; do CpItem "etc/systemd/system/Vm${f}.service"
 	done
 
-	CpSufx "Main/Server/Scripts/*." sh
+	CpSufx "Main/Server/Scripts/*." sh mjs
 	CpSufx "Main/Server/Scripts/Backup/*." sh cfg
 	CpItem Main/Server/Scripts/Interactive
 	#CpItem Main/Server/Scripts/OneShot.AfterBoot.sh
 	#CpItem Main/Server/Scripts/RenewCerts.sh
 
-	#CpItem Main/Server/Start/bittorrentd
-	#CpItem Main/Transfers/aria2/Conf
+	CpItem Main/Server/Start/aria2c
+	CpItem Main/Transfers/aria2/Conf
 
 	ScopePath=/var/lib/lxc/Debian2023/rootfs/
 		CpItem etc/nginx/nginx.conf
