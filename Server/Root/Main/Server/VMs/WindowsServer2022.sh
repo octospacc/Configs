@@ -21,7 +21,9 @@ while true; do
 	-netdev user,id=net0,hostfwd=tcp::3389-:3389,hostfwd=udp::3389-:3389 \
 	-display none \
 ;
-#	-bios /usr/share/qemu/OVMF.fd \
+#	-device intel-hda \
+#	-device hda-duplex \
+#	-audiodev driver=none,id=none \
 #	-cdrom ./SERVER_EVAL_x64FRE_en-us.iso \
 #	-vnc :10 \
 #	-display none \
