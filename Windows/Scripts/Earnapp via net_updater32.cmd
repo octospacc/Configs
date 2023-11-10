@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\EarnApp\net_updater32.exe" --start-service win_earnapp.com
