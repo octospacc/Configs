@@ -6,6 +6,8 @@ let Time = new Date();
 Time.Stamp = `${Time.getFullYear()}-${(Time.getMonth() + 1).toString().padStart(2, '0')}-${Time.getDate().toString().padStart(2, '0')}`;
 cd(BackupsBase);
 
+const GenericBrowserUserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0';
+
 let [Jobs, Secrets] = [{}, {}];
 
 // Import secrets from sh-formatted file
@@ -28,7 +30,12 @@ const ccencryptNow = async (File, BaseKey) => {
 	$`echo ${Time.Stamp} > ${File}.info`;
 };
 
-const GitPullPush = async () => await $`git pull; git add . && git commit -m "Auto-Backup ${Time}" && git push || true`;
+//const ExecAs = async (cmdline, user) => {
+//	//return await $`${user ? ('sudo -u ' + user) : ''} sh -c '${cmdline}'`;
+//};
+
+//const GitPullPush = async (user) => await ExecAs(`git pull; git add . && git commit -m "Auto-Backup ${Time}" && git push || true`, user);
+const GitPullPush = async () => await $`git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 
 const BackPathCrypt = async (Folder, Key, Ext) => {
 	Ext ||= '.tar.xz';
@@ -40,12 +47,6 @@ const BackPathCrypt = async (Folder, Key, Ext) => {
 const SimpleCompress = async (Dst, Src) => await $`rm ${Dst}.tar.xz || true; tar cJSf "${Dst}.tar.xz" ${Src}`;
 
 const SimpleBackup = async (Folder, Prefix) => {
-	//await $`mkdir -vp "./${Folder}"`;
-	//await $`rm "./${Folder}/Latest.tar.xz" || true`;
-	//await $`rm -rf "./${Folder}/Latest.d" || true`;
-	//await $`cp -rp "/Main/Server/${Prefix}/${Folder}" "./${Folder}/Latest.d"`;
-	//await SimpleCompress(`./${Folder}/${Time.Stamp}`, `./${Folder}/Latest.d`);
-	//await $`ln -s "./${Time.Stamp}.tar.xz" "./${Folder}/Latest.tar.xz"`;
 	await $`mkdir -vp ./${Folder}`;
 	await $`rm ./${Folder}/Latest.tar.xz || true`;
 	await $`rm -rf ./${Folder}/Latest.d || true`;
@@ -78,7 +79,27 @@ Jobs.Local_SpaccBBS = async()=>{
 	await $`ln -s "./Db.${Time.Stamp}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz`;
 };
 
-Jobs.Exter = async()=>{
+Jobs.Mixed_OctospaccAltervista = async()=>{
+	const Domain = 'octospacc.altervista.org';
+	cd(`./${Domain}-Git`);
+	await $`rclone sync ${Domain}:/ ./www/wp-content/ --progress`;
+	//await $`curl 'https://${Domain}/wp-admin/export.php?download=true&content=all&cat=0&post_author=0&post_start_date=0&post_end_date=0&post_status=0&page_author=0&page_start_date=0&page_end_date=0&page_status=0&attachment_start_date=0&attachment_end_date=0&submit=Scarica+il+file+di+esportazione' -H 'User-Agent: ${GenericBrowserUserAgent}' -H 'Referer: https://${Domain}/wp-admin/export.php' -H 'Connection: keep-alive' -H 'Cookie: ${Secrets.OctospaccAltervista_Backup_Cookie}' > ./WordPress.xml`;
+	const args = [
+		`https://${Domain}/wp-admin/export.php?download=true&content=all&cat=0&post_author=0&post_start_date=0&post_end_date=0&post_status=0&page_author=0&page_start_date=0&page_end_date=0&page_status=0&attachment_start_date=0&attachment_end_date=0&submit=Scarica+il+file+di+esportazione`,
+		'-H', 'Connection: keep-alive',
+		'-H', `User-Agent: ${GenericBrowserUserAgent}`,
+		'-H', `Referer: https://${Domain}/wp-admin/export.php`,
+		'-H', `Cookie: ${Secrets.OctospaccAltervista_Backup_Cookie}`,
+	];
+	await $`curl ${args} > ./WordPress.xml`;
+	await GitPullPush();
+};
+
+Jobs.Mixed_SpacccraftAltervista = async()=>{
+	// ...
+};
+
+Jobs.Exter_WikiSpacc = async()=>{
 	// ...
 };
 
@@ -124,19 +145,22 @@ Jobs.Cloud_SpaccCraft = async()=>{
 	await GitPullPush();
 };
 
-Jobs.Cloud_Private = async()=> await $`sudo -u tux rclone sync -v /Main/Clouds/octt GDrive-Uni-Crypt:/`;
+Jobs.Cloud_Private = async()=> await $`sudo -u tux rclone sync /Main/Clouds/octt GDrive-Uni-Crypt:/Clouds.octt --progress`;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 await Work('Local_MiscSimpleBackups');
 await Work('Local_Shiori');
 await Work('Local_SpaccBBS');
-await Work('Exter');
+
+await Work('Mixed_OctospaccAltervista');
+await Work('Mixed_SpacccraftAltervista');
+await Work('Exter_WikiSpacc');
 
 await Work('Cloud_ServerBackupLimited');
 await Work('Cloud_ArticlesBackupPrivate');
 await Work('Cloud_SpaccBBS');
 await Work('Cloud_SpaccCraft');
-//await Work('Cloud_Private');
+await Work('Cloud_Private');
 
 $`echo ${Time.Stamp} > ${BackupsBase}/Last.log`;

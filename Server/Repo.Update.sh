@@ -19,11 +19,12 @@ mkcd ./Root
 		CpItem "etc/systemd/system/${f}.timer"
 	done
 
-	CpSufx "Main/Server/VMs/*." sh
-
+	#CpSufx "Main/Server/VMs/*." sh
 	for f in \
-		WindowsServer2022 Windows7Earnapp1 \
-	; do CpItem "etc/systemd/system/Vm${f}.service"
+		WindowsServer2022 Windows7Earnapp1 Lubuntu2022NonProxied \
+	; do
+		CpItem "Main/Server/VMs/${f}.sh"
+		CpItem "etc/systemd/system/Vm${f}.service"
 	done
 
 	CpSufx "Main/Server/Scripts/*." sh mjs

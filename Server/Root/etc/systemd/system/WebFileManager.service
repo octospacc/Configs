@@ -5,8 +5,8 @@ After=network.target
 User=root
 Type=exec
 ExecStart=/usr/local/bin/filebrowser -a 0.0.0.0 -p 7580 -r /
-WorkingDirectory=/Server/SpaccCloud
+WorkingDirectory=/Main/Server/SpaccCloud
 Restart=always
-RestartSec=10
+RestartSec=15
 [Install]
 WantedBy=default.target

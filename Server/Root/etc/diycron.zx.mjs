@@ -28,7 +28,7 @@ T.m = T.getMinutes();
 T.is = (question) => {
 	let allTrue = true;
 	for (let predicate in question) {
-		let word = predicate.replace('_', '');
+		let word = predicate.replaceAll('_', '');
 		let oracle = {
 			//Y: T.Y,
 			M: T.M,
@@ -52,10 +52,10 @@ T.is = (question) => {
 
 ///////////////////////////////////////
 
-T.is({ h:'03', m_:'05' })
+T.is({ _D_:'2', h:'03', m_:'10' })
 	&& Work('Backup', ()=>{ $`zx /Main/Server/Scripts/BackupAll.zx.mjs` });
 
-T.is({ _D_:'9', h:'04', m_:'05' })
+T.is({ _D_:'9', h:'02', m_:'30' })
 	&& Work('Certs', ()=>{ $`sh /Main/Server/Scripts/RenewCerts.sh` });
 
 ///////////////////////////////////////

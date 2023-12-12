@@ -5,7 +5,7 @@ while true; do
 qemu-system-x86_64 \
 	-accel kvm \
 	-cpu host \
-	-smp 2 \
+	-smp 1 \
 	-m 700M \
 	-hda ./Lubuntu2022NonProxied.qcow2 \
 	-device e1000,netdev=net0 \

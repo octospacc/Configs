@@ -15,6 +15,7 @@ chown -R 1000:1000 /Main/Server/Desktop
 for Dir in \
 	Backup/SpaccCraft \
 	Server/TelegramIndex-Fork \
+	Server/Bots/RSS-to-Telegram-Bot-Fork \
 ; do chown -R 101000:101000 "/Main/${Dir}"
 done
 

@@ -1,12 +1,11 @@
 [Unit]
-Description=windog
+Description=Lubuntu 2022 Non-Proxied VM
 After=network.target
-StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
 RestartSec=10
-User=pi
-ExecStart=/Server/Bots/WinDog/StartWinDog
+User=root
+ExecStart=/bin/sh -c /Main/Server/VMs/Lubuntu2022NonProxied.sh
 [Install]
 WantedBy=multi-user.target
