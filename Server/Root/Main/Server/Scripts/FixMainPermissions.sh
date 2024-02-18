@@ -20,7 +20,9 @@ for Dir in \
 done
 
 chown -R 100033:100033 /Main/Server/www
-#chmod -R 775 /Main/Server/www
 chmod -R 777 /Main/Server/www
 
+chmod -R 777 /Main/Server/WuppiMini
+
+chown -R tux:tux /Main/Backup/
 chown -R tux:tux /Main/Clouds/octt/

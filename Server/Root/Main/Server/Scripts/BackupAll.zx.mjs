@@ -35,6 +35,7 @@ const ccencryptNow = async (File, BaseKey) => {
 //};
 
 //const GitPullPush = async (user) => await ExecAs(`git pull; git add . && git commit -m "Auto-Backup ${Time}" && git push || true`, user);
+const GitReclone = async (path, url) => await $`rm -rf ${path}.old || true; mv ${path} ${path}.old; git clone --depth 1 ${url}`;
 const GitPullPush = async () => await $`git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 
 const BackPathCrypt = async (Folder, Key, Ext) => {
@@ -44,7 +45,7 @@ const BackPathCrypt = async (Folder, Key, Ext) => {
 	await ccencryptNow(`./${File}`, Key);
 };
 
-const SimpleCompress = async (Dst, Src) => await $`rm ${Dst}.tar.xz || true; tar cJSf "${Dst}.tar.xz" ${Src}`;
+const SimpleCompress = async (dst, src) => await $`rm ${dst}.tar.xz || true; tar cJSf "${dst}.tar.xz" ${dst || src}`;
 
 const SimpleBackup = async (Folder, Prefix) => {
 	await $`mkdir -vp ./${Folder}`;
@@ -55,7 +56,23 @@ const SimpleBackup = async (Folder, Prefix) => {
 	await $`ln -s ./${Time.Stamp}.tar.xz ./${Folder}/Latest.tar.xz`;
 };
 
-const Work = async (Job) => await within(Jobs[Job]);
+const AltervistaFullBackup = async (domain) => {
+	const [user, pass, key] = Secrets[`${domain.replaceAll('.', '_')}_Backup_Tokens`].split(':');
+	cd(`./${domain}-Git`);
+	await $`rclone sync ${domain}:/ ./www/wp-content/ --progress || true`;
+	await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
+	await GitPullPush();
+};
+
+const LampBackup = async (folder, table) => {
+	await SimpleBackup(folder, 'www');
+	await $`lxc-attach Debian2023 -- mariadb-dump ${table || folder} > ./${folder}/Db.Latest.sql`;
+	await SimpleCompress(`./${folder}/Db.${Time.Stamp}.sql`, `./${folder}/Db.Latest.sql`);
+	await $`rm ./${folder}/Db.Latest.sql.tar.xz || true`;
+	await $`ln -s "./Db.${Time.Stamp}.sql.tar.xz" ./${folder}/Db.Latest.sql.tar.xz`;
+};
+
+const Work = async (job) => await within(Jobs[job]);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +89,7 @@ Jobs.Local_Shiori = async()=>{
 };
 
 Jobs.Local_SpaccBBS = async()=>{
+	// ... await LampBackup('SpaccBBS', 'phpBB');
 	await SimpleBackup('SpaccBBS', 'www');
 	await $`lxc-attach Debian2023 -- mariadb-dump phpBB > ./SpaccBBS/Db.Latest.sql`;
 	await SimpleCompress(`./SpaccBBS/Db.${Time.Stamp}.sql`, './SpaccBBS/Db.Latest.sql');
@@ -79,31 +97,26 @@ Jobs.Local_SpaccBBS = async()=>{
 	await $`ln -s "./Db.${Time.Stamp}.sql.tar.xz" ./SpaccBBS/Db.Latest.sql.tar.xz`;
 };
 
+Jobs.Local_liminalgici = async()=>{
+	await LampBackup('pixelfed_liminalgici');
+};
+
 Jobs.Mixed_OctospaccAltervista = async()=>{
-	const Domain = 'octospacc.altervista.org';
-	cd(`./${Domain}-Git`);
-	await $`rclone sync ${Domain}:/ ./www/wp-content/ --progress`;
-	//await $`curl 'https://${Domain}/wp-admin/export.php?download=true&content=all&cat=0&post_author=0&post_start_date=0&post_end_date=0&post_status=0&page_author=0&page_start_date=0&page_end_date=0&page_status=0&attachment_start_date=0&attachment_end_date=0&submit=Scarica+il+file+di+esportazione' -H 'User-Agent: ${GenericBrowserUserAgent}' -H 'Referer: https://${Domain}/wp-admin/export.php' -H 'Connection: keep-alive' -H 'Cookie: ${Secrets.OctospaccAltervista_Backup_Cookie}' > ./WordPress.xml`;
-	const args = [
-		`https://${Domain}/wp-admin/export.php?download=true&content=all&cat=0&post_author=0&post_start_date=0&post_end_date=0&post_status=0&page_author=0&page_start_date=0&page_end_date=0&page_status=0&attachment_start_date=0&attachment_end_date=0&submit=Scarica+il+file+di+esportazione`,
-		'-H', 'Connection: keep-alive',
-		'-H', `User-Agent: ${GenericBrowserUserAgent}`,
-		'-H', `Referer: https://${Domain}/wp-admin/export.php`,
-		'-H', `Cookie: ${Secrets.OctospaccAltervista_Backup_Cookie}`,
-	];
-	await $`curl ${args} > ./WordPress.xml`;
-	await GitPullPush();
+	await AltervistaFullBackup('octospacc.altervista.org');
 };
 
+// TODO: setup FTP access and Cookie
 Jobs.Mixed_SpacccraftAltervista = async()=>{
-	// ...
+	await AltervistaFullBackup('spacccraft.altervista.org', Secrets.SpacccraftAltervista_Backup_Cookie);
 };
 
+// TODO: everything
 Jobs.Exter_WikiSpacc = async()=>{
 	// ...
 };
 
 Jobs.Cloud_ServerBackupLimited = async()=>{
+	await GitReclone('Server-Backup-Limited', 'https://gitlab.com/octospacc/Server-Backup-Limited/');
 	cd('./Server-Backup-Limited');
 	await BackPathCrypt('FreshRSS', Secrets.BackupKey_Git_FreshRSS);
 	await BackPathCrypt('n8n-data', Secrets.BackupKey_Git_n8n);
@@ -130,6 +143,19 @@ Jobs.Cloud_SpaccBBS = async()=>{
 	await GitPullPush();
 };
 
+Jobs.Cloud_liminalgici = async()=>{
+	cd('./liminalgici.spacc.eu.org-Git');
+	await $`rm -rf ./pixelfed_liminalgici || true`;
+	await $`cp -rp ../pixelfed_liminalgici/Latest.d ./pixelfed_liminalgici`;
+	await $`cp ../pixelfed_liminalgici/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
+	await SimpleCompress('./pixelfed_liminalgici/config');
+	await $`rm -rf ./pixelfed_liminalgici/config || true`;
+	for (let File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
+		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
+	};
+	await GitPullPush();
+};
+
 Jobs.Cloud_SpaccCraft = async()=>{
 	const McServer="SpaccCraft";
 	const McEdition="Beta-1.7.3";
@@ -152,14 +178,18 @@ Jobs.Cloud_Private = async()=> await $`sudo -u tux rclone sync /Main/Clouds/octt
 await Work('Local_MiscSimpleBackups');
 await Work('Local_Shiori');
 await Work('Local_SpaccBBS');
+await Work('Local_liminalgici');
+//await Work('Local_Doku');
 
 await Work('Mixed_OctospaccAltervista');
-await Work('Mixed_SpacccraftAltervista');
-await Work('Exter_WikiSpacc');
+//await Work('Mixed_SpacccraftAltervista');
+//await Work('Exter_WikiSpacc');
 
 await Work('Cloud_ServerBackupLimited');
 await Work('Cloud_ArticlesBackupPrivate');
 await Work('Cloud_SpaccBBS');
+await Work('Cloud_liminalgici');
+//await Work('Cloud_Doku');
 await Work('Cloud_SpaccCraft');
 await Work('Cloud_Private');
 

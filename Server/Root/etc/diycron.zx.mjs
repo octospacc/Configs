@@ -39,9 +39,9 @@ T.is = (question) => {
 		}[word];
 		if (predicate.endsWith('_') && predicate.startsWith('_')) {
 			!((oracle % question[predicate]) == 0) && (allTrue = false);
-		} else if (predicate.endsWith('_')) {
+		} else if (predicate.endsWith('_')) {   // w_
 			!(oracle <= question[predicate]) && (allTrue = false);
-		} else if (predicate.startsWith('_')) {
+		} else if (predicate.startsWith('_')) { // _w
 			!(oracle >= question[predicate]) && (allTrue = false);
 		} else {
 			!(oracle == question[predicate]) && (allTrue = false);
@@ -52,8 +52,11 @@ T.is = (question) => {
 
 ///////////////////////////////////////
 
-T.is({ _D_:'2', h:'03', m_:'10' })
-	&& Work('Backup', ()=>{ $`zx /Main/Server/Scripts/BackupAll.zx.mjs` });
+
+//T.is({ /*_D_:'2',*/ h:'03', m_:'10' }) && (T.D % 2 === 0)
+//T.is({ _D_:'3', h:'12', m:'00' })
+//T.is({ h:'03', m_:'10' }) && (T.D % 3 === 0)
+//	&& Work('Backup', ()=>{ $`zx /Main/Server/Scripts/BackupAll.zx.mjs` });
 
 T.is({ _D_:'9', h:'02', m_:'30' })
 	&& Work('Certs', ()=>{ $`sh /Main/Server/Scripts/RenewCerts.sh` });
