@@ -1,0 +1,7 @@
+[Unit]
+Description=BackupAll.service
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/bin/bash -c "zx /Main/Server/Scripts/BackupAll.zx.mjs"

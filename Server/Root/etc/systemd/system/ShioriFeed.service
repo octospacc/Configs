@@ -2,10 +2,10 @@
 Description=ShioriFeed
 After=network.target
 [Service]
-User=pi
+User=tux
 Type=exec
-ExecStart=/Server/Shiori/ShioriFeed.py
-WorkingDirectory=/Server/Shiori/
+ExecStart=/Main/Server/Shiori/ShioriFeed.py
+WorkingDirectory=/Main/Server/Shiori/
 Restart=always
 RestartSec=10
 [Install]

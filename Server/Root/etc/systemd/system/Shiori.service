@@ -2,10 +2,10 @@
 Description=Shiori
 After=network.target
 [Service]
-User=pi
+User=tux
 Type=exec
-ExecStart=/Server/Shiori/shiori --portable serve -p 8076
-WorkingDirectory=/Server/Shiori/
+ExecStart=/Main/Server/Shiori/shiori --portable serve -p 8076
+WorkingDirectory=/Main/Server/Shiori/
 Restart=always
 RestartSec=10
 [Install]

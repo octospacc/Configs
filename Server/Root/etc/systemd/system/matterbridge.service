@@ -1,0 +1,13 @@
+[Unit]
+Description=Matterbridge daemon
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/Main/Server/matterbridge/matterbridge.run -conf /Main/Server/matterbridge/matterbridge.toml
+Restart=always
+RestartSec=5s
+User=tux
+
+[Install]
+WantedBy=multi-user.target

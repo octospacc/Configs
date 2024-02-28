@@ -45,7 +45,7 @@ const BackPathCrypt = async (Folder, Key, Ext) => {
 	await ccencryptNow(`./${File}`, Key);
 };
 
-const SimpleCompress = async (dst, src) => await $`rm ${dst}.tar.xz || true; tar cJSf "${dst}.tar.xz" ${dst || src}`;
+const SimpleCompress = async (dst, src) => await $`rm ${dst}.tar.xz || true; tar cJSf "${dst}.tar.xz" ${src || dst}`;
 
 const SimpleBackup = async (Folder, Prefix) => {
 	await $`mkdir -vp ./${Folder}`;
@@ -103,6 +103,11 @@ Jobs.Local_liminalgici = async()=>{
 
 Jobs.Mixed_OctospaccAltervista = async()=>{
 	await AltervistaFullBackup('octospacc.altervista.org');
+	$`rm -rf ./microblog-mirror/assets/uploads/*`;
+	cd('./octospacc.altervista.org-Git/www/wp-content/uploads');
+	$`cp -r $(seq 2020 $(date +%Y)) ../../../../microblog-mirror/assets/uploads/`;
+	cd('../../../../microblog-mirror');
+	await GitPullPush();
 };
 
 // TODO: setup FTP access and Cookie
@@ -175,6 +180,8 @@ Jobs.Cloud_Private = async()=> await $`sudo -u tux rclone sync /Main/Clouds/octt
 
 ////////////////////////////////////////////////////////////////////////////////
 
+$`echo Begin ${Time.Stamp} > ${BackupsBase}/Last.log`;
+
 await Work('Local_MiscSimpleBackups');
 await Work('Local_Shiori');
 await Work('Local_SpaccBBS');
@@ -193,4 +200,4 @@ await Work('Cloud_liminalgici');
 await Work('Cloud_SpaccCraft');
 await Work('Cloud_Private');
 
-$`echo ${Time.Stamp} > ${BackupsBase}/Last.log`;
+$`echo End ${Time.Stamp} > ${BackupsBase}/Last.log`;

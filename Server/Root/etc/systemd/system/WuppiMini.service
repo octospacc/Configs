@@ -1,0 +1,11 @@
+[Unit]
+Description=WuppiMini
+After=network.target
+[Service]
+User=tux
+Type=exec
+ExecStart=/usr/bin/env node /Main/Server/WuppiMini/index.js
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=default.target

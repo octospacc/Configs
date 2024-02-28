@@ -5,4 +5,4 @@ Wants=freshrss.timer
 [Service]
 User=www-data
 Type=simple
-ExecStart=/usr/bin/php /Server/www/FreshRSS/app/actualize_script.php
+ExecStart=/usr/bin/php /Main/Server/www/FreshRSS/app/actualize_script.php

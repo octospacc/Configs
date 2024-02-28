@@ -9,11 +9,9 @@ mkcd ./Root
 	CpSufx etc/ diycron diycron.zx.mjs
 
 	for f in \
-		diycron ncshell OneShot.AfterBoot bittorrentd SocatIpProxies \
-		Shiori ShioriFeed \
-		CringeInoltro WinDog \
-		TelegramIndex WebFileManager \
-		SpaccCraft FreshRSS-actualize \
+		diycron BackupAll \
+		ncshell OneShot.AfterBoot SocatIpProxies \
+		CringeInoltro SpaccCraft \
 	; do
 		CpItem "etc/systemd/system/${f}.service"
 		CpItem "etc/systemd/system/${f}.timer"
@@ -40,6 +38,15 @@ mkcd ./Root
 		CpItem etc/nginx/nginx.conf
 		CpSufx "etc/nginx/sites-available/*." conf old
 		CpItem etc/tor/torrc
+		for f in \
+			matterbridge pixelfed_liminalgici FreshRSS-actualize \
+			Shiori ShioriFeed \
+			RssToTelegramBot WinDog \
+			TelegramIndex WebFileManager WuppiMini \
+		; do
+			CpItem "etc/systemd/system/${f}.service"
+			CpItem "etc/systemd/system/${f}.timer"
+		done
 
 	ScopePath=/var/lib/lxc/Ubuntu2023-SpaccCraft/rootfs/
 		CpItem etc/systemd/system/SpaccCraft.service

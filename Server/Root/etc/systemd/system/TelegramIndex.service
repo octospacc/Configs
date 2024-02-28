@@ -1,13 +1,11 @@
 [Unit]
 Description=TelegramIndex
 After=network.target
-StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
 RestartSec=15
-User=pi
-WorkingDirectory=/Server/TelegramIndex-Fork
-ExecStart=/usr/bin/bash -c "set -a; source .env; python3 -m app"
+User=root
+ExecStart=/usr/bin/bash /Main/Server/TelegramIndex-Fork/StartTelegramIndex.sh
 [Install]
 WantedBy=multi-user.target

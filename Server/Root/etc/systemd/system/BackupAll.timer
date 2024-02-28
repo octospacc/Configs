@@ -1,0 +1,9 @@
+[Install]
+WantedBy=default.target
+
+[Unit]
+Description=BackupAll.timer
+
+[Timer]
+OnCalendar=*-*-2,5,8,11,14,17,20,23,26,29 00:03:00
+Unit=BackupAll.service

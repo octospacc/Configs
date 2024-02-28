@@ -1,0 +1,11 @@
+[Unit]
+Description=RssToTelegramBot
+After=network.target
+[Service]
+Type=simple
+Restart=always
+RestartSec=15
+User=tux
+ExecStart=/bin/sh /Main/Server/Bots/RSS-to-Telegram-Bot-Fork/StartRssToTelegramBot.sh
+[Install]
+WantedBy=multi-user.target
