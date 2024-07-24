@@ -39,7 +39,8 @@ mkcd ./Root
 		CpSufx "etc/nginx/sites-available/*." conf old
 		CpItem etc/tor/torrc
 		for f in \
-			matterbridge pixelfed_liminalgici FreshRSS-actualize \
+			matterbridge FreshRSS-actualize \
+			pixelfed_liminalgici SpaccBBS-NodeBB \
 			Shiori ShioriFeed \
 			RssToTelegramBot WinDog \
 			TelegramIndex WebFileManager WuppiMini \

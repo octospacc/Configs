@@ -14,7 +14,7 @@ while true; do
 	-smbios type=4,manufacturer=Intel,max-speed=4800,current-speed=4800 \
 	-cpu "host,family=6,model=158,stepping=2,model_id=Intel(R) Core(TM) i9-12900K CPU @ 2.60GHz,vmware-cpuid-freq=false,enforce=false,host-phys-bits=true,hypervisor=off" \
 	-machine q35,kernel_irqchip=on \
-	-smp 2 \
+	-smp 3 \
 	-m 3840M \
 	-hda ./WindowsServer2022.qcow2 \
 	-device e1000,netdev=net0 \

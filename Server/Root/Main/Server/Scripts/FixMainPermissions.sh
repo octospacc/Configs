@@ -10,7 +10,7 @@ done
 #Server \
 #Backup \
 
-chown -R 1000:1000 /Main/Server/Desktop
+#chown -R 1000:1000 /Main/Server/Desktop
 
 for Dir in \
 	Backup/SpaccCraft \
@@ -22,7 +22,9 @@ done
 chown -R 100033:100033 /Main/Server/www
 chmod -R 777 /Main/Server/www
 
+chmod -R 777 /Main/Server/Bots
 chmod -R 777 /Main/Server/WuppiMini
+chmod -R 777 /Main/Server/SpaccBBS-NodeBB
 
 chown -R tux:tux /Main/Backup/
 chown -R tux:tux /Main/Clouds/octt/

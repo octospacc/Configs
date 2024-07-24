@@ -35,7 +35,7 @@ const ccencryptNow = async (File, BaseKey) => {
 //};
 
 //const GitPullPush = async (user) => await ExecAs(`git pull; git add . && git commit -m "Auto-Backup ${Time}" && git push || true`, user);
-const GitReclone = async (path, url) => await $`rm -rf ${path}.old || true; mv ${path} ${path}.old; git clone --depth 1 ${url}`;
+const GitReclone = async (path, url, branch) => await $`rm -rf ${path}.old || true; mv ${path} ${path}.old; git clone --depth 1 --single-branch ${url} ${branch ? `--branch ${branch}` : ''}`;
 const GitPullPush = async () => await $`git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 
 const BackPathCrypt = async (Folder, Key, Ext) => {
@@ -60,7 +60,7 @@ const AltervistaFullBackup = async (domain) => {
 	const [user, pass, key] = Secrets[`${domain.replaceAll('.', '_')}_Backup_Tokens`].split(':');
 	cd(`./${domain}-Git`);
 	await $`rclone sync ${domain}:/ ./www/wp-content/ --progress || true`;
-	await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
+	// await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
 	await GitPullPush();
 };
 
@@ -72,6 +72,12 @@ const LampBackup = async (folder, table) => {
 	await $`ln -s "./Db.${Time.Stamp}.sql.tar.xz" ./${folder}/Db.Latest.sql.tar.xz`;
 };
 
+const FolderGoCopyForCloud = async (src, dst) => {
+	cd(`./${dst}`);
+        await $`rm -rf ./${src} || true`;
+        await $`cp -rp ../${src}/Latest.d ./${src}`;
+};
+
 const Work = async (job) => await within(Jobs[job]);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +87,9 @@ Jobs.Local_MiscSimpleBackups = async()=>{
 	await SimpleBackup('n8n-data');
 	await SimpleBackup('script-server');
 	await SimpleBackup('docker-mailserver');
+	await $`sudo docker stop memos`;
+	await SimpleBackup('memos');
+	await $`sudo docker start memos`;
 };
 
 Jobs.Local_Shiori = async()=>{
@@ -101,12 +110,32 @@ Jobs.Local_liminalgici = async()=>{
 	await LampBackup('pixelfed_liminalgici');
 };
 
+Jobs.Local_Doku = async()=>{
+	await SimpleBackup('dokuwiki', 'www');
+};
+
+Jobs.Cloud_Doku = async()=>{
+	await FolderGoCopyForCloud('dokuwiki', 'doku.spacc.eu.org-Git');
+	await $`rm -rf ./dokuwiki/data/.git ./dokuwiki/data/cache || true`;
+	await GitPullPush();
+};
+
 Jobs.Mixed_OctospaccAltervista = async()=>{
 	await AltervistaFullBackup('octospacc.altervista.org');
-	$`rm -rf ./microblog-mirror/assets/uploads/*`;
-	cd('./octospacc.altervista.org-Git/www/wp-content/uploads');
-	$`cp -r $(seq 2020 $(date +%Y)) ../../../../microblog-mirror/assets/uploads/`;
+	cd('../microblog-mirror');
+		await $`rm -rf ./_posts ./assets/uploads/* || true`;
+	cd('../octospacc.altervista.org-Git');
+		await $`cp -r ./www/wp-content/octt-export-markdown/${Secrets.octospacc_altervista_org_MarkdownKey}/_posts ../microblog-mirror/_posts`;
+		cd('./www/wp-content/uploads');
+		await $`cp -r $(seq 2020 $(date +%Y)) ../../../../microblog-mirror/assets/uploads/ || true`;
 	cd('../../../../microblog-mirror');
+		await $`sh ./filter-fix-posts.sh`;
+		await GitPullPush();
+};
+
+Jobs.Mixed_Snippets = async () => {
+	cd('./Snippets');
+	await $`cp /Main/Server/www/Drive/Misc/Scripts/* ./`;
 	await GitPullPush();
 };
 
@@ -127,6 +156,7 @@ Jobs.Cloud_ServerBackupLimited = async()=>{
 	await BackPathCrypt('n8n-data', Secrets.BackupKey_Git_n8n);
 	await BackPathCrypt('script-server', Secrets.BackupKey_Git_scriptserver);
 	await BackPathCrypt('docker-mailserver', Secrets.BackupKey_Git_dockermailserver);
+	await BackPathCrypt('memos', Secrets.BackupKey_Git_memos);
 	await GitPullPush();
 };
 
@@ -185,9 +215,11 @@ $`echo Begin ${Time.Stamp} > ${BackupsBase}/Last.log`;
 await Work('Local_MiscSimpleBackups');
 await Work('Local_Shiori');
 await Work('Local_SpaccBBS');
+//await Work('Local_SpaccBBS_NodeBB');
 await Work('Local_liminalgici');
-//await Work('Local_Doku');
+await Work('Local_Doku');
 
+//await Work('Mixed_Snippets');
 await Work('Mixed_OctospaccAltervista');
 //await Work('Mixed_SpacccraftAltervista');
 //await Work('Exter_WikiSpacc');
@@ -196,7 +228,7 @@ await Work('Cloud_ServerBackupLimited');
 await Work('Cloud_ArticlesBackupPrivate');
 await Work('Cloud_SpaccBBS');
 await Work('Cloud_liminalgici');
-//await Work('Cloud_Doku');
+await Work('Cloud_Doku');
 await Work('Cloud_SpaccCraft');
 await Work('Cloud_Private');
 
