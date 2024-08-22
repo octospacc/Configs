@@ -6,6 +6,6 @@ Type=simple
 Restart=always
 RestartSec=10
 User=tux
-ExecStart=/Main/Server/Bots/WinDog/StartWinDog.sh
+ExecStart=/Main/Server/Bots/WinDog/RunWinDog.sh
 [Install]
 WantedBy=multi-user.target

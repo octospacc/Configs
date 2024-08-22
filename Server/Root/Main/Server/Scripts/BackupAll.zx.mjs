@@ -88,6 +88,12 @@ const FolderGoCopyForCloud = async (src, dst) => {
 	await $`rm -rf ./${src}/.git || true`;
 };
 
+const ScriptAndGitBackup = async (folder, command, program='sh') => {
+	cd(folder);
+	await $`${program} ${command}`;
+	await GitPullPush();
+};
+
 const Work = async (job) => await within(Jobs[job]);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,11 +144,8 @@ Jobs.Mixed_OctospaccAltervista = async () => {
 		await GitPullPush();
 };
 
-Jobs.Mixed_Snippets = async () => {
-	cd('./Snippets');
-	await $`cp /Main/Server/www/Drive/Misc/Scripts/* ./`;
-	await GitPullPush();
-};
+Jobs.Mixed_Configs = () => ScriptAndGitBackup('./Configs', './Server/Repo.Update.sh');
+Jobs.Mixed_Snippets = () => ScriptAndGitBackup('./Snippets', './.CopyFromServer.sh');
 
 // TODO: setup FTP access and Cookie
 Jobs.Mixed_SpacccraftAltervista = async () => {
@@ -225,7 +228,8 @@ await Work('Local_SpaccBBSNodeBB');
 await Work('Local_liminalgici');
 await Work('Local_Doku');
 
-//await Work('Mixed_Snippets');
+await Work('Mixed_Configs');
+await Work('Mixed_Snippets');
 await Work('Mixed_OctospaccAltervista');
 //await Work('Mixed_SpacccraftAltervista');
 //await Work('Exter_WikiSpacc');
