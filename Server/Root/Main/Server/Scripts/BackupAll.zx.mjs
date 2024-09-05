@@ -176,7 +176,7 @@ Jobs.Cloud_ArticlesBackupPrivate = async () => {
 Jobs.Cloud_SpaccBBS = async () => {
 	await FolderGoCopyForCloud('SpaccBBS', 'SpaccBBS-Backup-phpBB-2023');
 	await $`cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
-	for (let File of ['Db.sql.tar.xz', 'SpaccBBS/config.php', 'SpaccBBS/arrowchat/includes/config.php']) {
+	for (let File of ['Db.sql.tar.xz', 'SpaccBBS/old/config.php', 'SpaccBBS/old/arrowchat/includes/config.php']) {
 		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_SpaccBBS);
 	};
 	await GitPullPush();
