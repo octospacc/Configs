@@ -197,6 +197,7 @@ Jobs.Cloud_liminalgici = async () => {
 	for (let File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
 		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
 	};
+	await $`rm ./pixelfed_liminalgici/storage/app/public/m/.gitignore || true`;
 	await GitPullPush();
 };
 
