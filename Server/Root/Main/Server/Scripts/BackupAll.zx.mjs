@@ -1,14 +1,13 @@
 #!/usr/bin/env zx
 
-let BackupsBase = '/Main/Backup';
-let Time = new Date();
+const BackupsBase = '/Main/Backup';
+const GenericBrowserUserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0';
+const Time = new Date();
 
 Time.Stamp = `${Time.getFullYear()}-${(Time.getMonth() + 1).toString().padStart(2, '0')}-${Time.getDate().toString().padStart(2, '0')}`;
 cd(BackupsBase);
 
-const GenericBrowserUserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0';
-
-let [Jobs, Secrets] = [{}, {}];
+const [Jobs, Secrets] = [{}, {}];
 
 // Import secrets from sh-formatted file
 for (let line of (await fs.readFile('./.BackupSecrects.sec', 'utf8')).split('\n')) {
@@ -69,7 +68,7 @@ const AltervistaFullBackup = async (domain) => {
 	const [user, pass, key] = Secrets[`${domain.replaceAll('.', '_')}_Backup_Tokens`].split(':');
 	cd(`./${domain}-Git`);
 	await $`rclone sync ${domain}:/ ./www/wp-content/ --progress || true`;
-	// await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
+	await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
 	await GitPullPush();
 };
 
@@ -176,7 +175,7 @@ Jobs.Cloud_ArticlesBackupPrivate = async () => {
 Jobs.Cloud_SpaccBBS = async () => {
 	await FolderGoCopyForCloud('SpaccBBS', 'SpaccBBS-Backup-phpBB-2023');
 	await $`cp ../SpaccBBS/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
-	for (let File of ['Db.sql.tar.xz', 'SpaccBBS/old/config.php', 'SpaccBBS/old/arrowchat/includes/config.php']) {
+	for (const File of ['Db.sql.tar.xz', 'SpaccBBS/old/config.php', 'SpaccBBS/old/arrowchat/includes/config.php']) {
 		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_SpaccBBS);
 	};
 	await GitPullPush();
@@ -194,7 +193,7 @@ Jobs.Cloud_liminalgici = async () => {
 	await $`cp ../pixelfed_liminalgici/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
 	await SimpleCompress('./pixelfed_liminalgici/config');
 	await $`rm -rf ./pixelfed_liminalgici/config || true`;
-	for (let File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
+	for (const File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
 		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
 	};
 	//await $`rm ./pixelfed_liminalgici/storage/app/public/m/.gitignore || true`;
