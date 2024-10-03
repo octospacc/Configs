@@ -1,17 +1,12 @@
 #!/usr/bin/env zx
 
 const BackupsBase = '/Main/Backup';
-const TimeLimit = [0, 1, 0];
+const TimeLimit = { years: 0, months: 1, days: 0 };
 
-let [year, month, day] = TimeLimit;
-const maxDate = { year, month, day };
-
-const nowDate = (new Date());
-//const nowDate = {
-//	year: Number(Time.getFullYear()),
-//	month: Number((Time.getMonth() + 1).toString().padStart(2, '0')),
-//	day: Number(Time.getDate().toString().padStart(2, '0')),
-//};
+const maxDate = (new Date());
+maxDate.setDate(maxDate.getDate() - TimeLimit.days);
+maxDate.setMonth(maxDate.getMonth() - TimeLimit.months);
+maxDate.setYear(maxDate.getFullYear() - TimeLimit.years);
 
 cd(BackupsBase);
 const allDirsList = String(await $`ls -d */`).trim().split('\n');
@@ -33,7 +28,10 @@ for (const folder of allDirsList) {
 		month = month;
 		day = day.split('.')[0];
 		const fileDate = (new Date(`${year}-${month}-${day}`));
-		
-		//$`rm`
+		if (fileDate > maxDate) {
+			continue;
+		}
+		console.log(1, file);
+		//await $`rm ${file}`;
 	}
 }
