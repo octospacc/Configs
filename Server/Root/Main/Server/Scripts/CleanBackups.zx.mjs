@@ -31,7 +31,6 @@ for (const folder of allDirsList) {
 		if (fileDate > maxDate) {
 			continue;
 		}
-		console.log(1, file);
-		//await $`rm ${file}`;
+		await $`rm ${file}`;
 	}
 }
