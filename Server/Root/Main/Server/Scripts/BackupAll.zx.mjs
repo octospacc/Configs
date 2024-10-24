@@ -93,7 +93,13 @@ const ScriptAndGitBackup = async (folder, command, program='sh') => {
 	await GitPullPush();
 };
 
-const Work = async (job) => await within(Jobs[job]);
+const Work = async (jobName) => {
+	const filterText = process.argv.slice(-1)[0];
+	const isFilter = filterText.endsWith('_');
+	if (!isFilter || (isFilter && jobName.startsWith(filterText))) {
+		return await within(Jobs[jobName]);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
