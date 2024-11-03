@@ -16,7 +16,7 @@ while true; do
 	-machine q35,kernel_irqchip=on \
 	-smp 3 \
 	-m 3840M \
-	-hda ./WindowsServer2022.qcow2 \
+	-drive file=./WindowsServer2022.qcow2,format=qcow2,index=0,media=disk \
 	-device e1000,netdev=net0 \
 	-netdev user,id=net0,hostfwd=tcp::3389-:3389,hostfwd=udp::3389-:3389 \
 	-display none \
@@ -25,6 +25,9 @@ while true; do
 #	-device hda-duplex \
 #	-audiodev driver=none,id=none \
 #	-cdrom ./SERVER_EVAL_x64FRE_en-us.iso \
+#	-hda ./WindowsServer2022.qcow2 \
+#	-drive file=./WindowsServer2022.qcow2,format=qcow2,if=none,id=NVME1 \
+#	-device nvme,drive=NVME1,serial=nvme-1 \
 #	-vnc :10 \
 #	-display none \
 
