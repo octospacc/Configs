@@ -225,28 +225,38 @@ Jobs.Cloud_Private = () => $`sudo -u tux rclone sync /Main/Clouds/octt GDrive-Un
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const Main = async () => {
+	await Work('Local_MiscSimpleBackups');
+	await Work('Local_Shiori');
+	await Work('Local_SpaccBBS');
+	await Work('Local_SpaccBBSNodeBB');
+	await Work('Local_liminalgici');
+	await Work('Local_Doku');
+
+	await Work('Mixed_Configs');
+	await Work('Mixed_Snippets');
+	await Work('Mixed_OctospaccAltervista');
+	//await Work('Mixed_SpacccraftAltervista');
+	//await Work('Exter_WikiSpacc');
+
+	await Work('Cloud_ServerBackupLimited');
+	await Work('Cloud_ArticlesBackupPrivate');
+	await Work('Cloud_SpaccBBS');
+	await Work('Cloud_SpaccBBSNodeBB');
+	await Work('Cloud_liminalgici');
+	await Work('Cloud_Doku');
+	await Work('Cloud_SpaccCraft');
+	await Work('Cloud_Private');
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 $`echo Begin ${Time.Stamp} > ${BackupsBase}/Last.log`;
 
-await Work('Local_MiscSimpleBackups');
-await Work('Local_Shiori');
-await Work('Local_SpaccBBS');
-await Work('Local_SpaccBBSNodeBB');
-await Work('Local_liminalgici');
-await Work('Local_Doku');
+//await Main();
 
 await Work('Mixed_Configs');
 await Work('Mixed_Snippets');
 await Work('Mixed_OctospaccAltervista');
-//await Work('Mixed_SpacccraftAltervista');
-//await Work('Exter_WikiSpacc');
-
-await Work('Cloud_ServerBackupLimited');
-await Work('Cloud_ArticlesBackupPrivate');
-await Work('Cloud_SpaccBBS');
-await Work('Cloud_SpaccBBSNodeBB');
-await Work('Cloud_liminalgici');
-await Work('Cloud_Doku');
-await Work('Cloud_SpaccCraft');
-await Work('Cloud_Private');
 
 $`echo End ${Time.Stamp} > ${BackupsBase}/Last.log`;

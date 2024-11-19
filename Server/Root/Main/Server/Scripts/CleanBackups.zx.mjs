@@ -1,7 +1,7 @@
 #!/usr/bin/env zx
 
 const BackupsBase = '/Main/Backup';
-const TimeLimit = { years: 0, months: 1, days: 0 };
+const TimeLimit = { years: 0, months: 0, days: 25 };
 
 const maxDate = (new Date());
 maxDate.setDate(maxDate.getDate() - TimeLimit.days);
