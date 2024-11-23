@@ -253,10 +253,6 @@ const Main = async () => {
 
 $`echo Begin ${Time.Stamp} > ${BackupsBase}/Last.log`;
 
-//await Main();
-
-await Work('Mixed_Configs');
-await Work('Mixed_Snippets');
-await Work('Mixed_OctospaccAltervista');
+await Main();
 
 $`echo End ${Time.Stamp} > ${BackupsBase}/Last.log`;

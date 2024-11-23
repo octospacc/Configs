@@ -31,5 +31,5 @@ while true; do
 #	-vnc :10 \
 #	-display none \
 
-sleep 999
+sleep 500
 done
