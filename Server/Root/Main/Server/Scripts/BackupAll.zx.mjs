@@ -29,6 +29,11 @@ const ccencryptNow = async (File, BaseKey) => {
 	$`echo ${Time.Stamp} > ${File}.info`;
 };
 
+const EnsureFolder = async (path) => {
+	await $`mkdir -vp ${path}`;
+	cd(path);
+}
+
 //const ExecAs = async (cmdline, user) => {
 //	//return await $`${user ? ('sudo -u ' + user) : ''} sh -c '${cmdline}'`;
 //};
@@ -44,11 +49,11 @@ const BackPathCrypt = async (Folder, Key, Ext) => {
 	await ccencryptNow(`./${File}`, Key);
 };
 
-const SimpleCompress = async (dst, src) => await $`rm ${dst}.tar.xz || true; tar cJSf "${dst}.tar.xz" ${src || dst}`;
+const SimpleCompress = async (dst, src) => await $`rm -f ${dst}.tar.xz || true; tar cJSf "${dst}.tar.xz" ${src || dst}`;
 
 const SimpleBackup = async (Folder, Prefix) => {
 	await $`mkdir -vp ./${Folder}`;
-	await $`rm ./${Folder}/Latest.tar.xz || true`;
+	await $`rm -f ./${Folder}/Latest.tar.xz || true`;
 	await $`rm -rf ./${Folder}/Latest.d || true`;
 	await $`cp -rp /Main/Server/${Prefix || ''}/${Folder} ./${Folder}/Latest.d`;
 	await SimpleCompress(`./${Folder}/${Time.Stamp}`, `./${Folder}/Latest.d`);
@@ -60,7 +65,7 @@ const CompressAndUpdate = async (folder, name, extension) => {
 		`./${folder}/${name}.${Time.Stamp}.${extension}`,
 		`./${folder}/${name}.Latest.${extension}`,
 	);
-	await $`rm ./${folder}/${name}.Latest.${extension}.tar.xz || true`;
+	await $`rm -f ./${folder}/${name}.Latest.${extension}.tar.xz || true`;
 	await $`ln -s ./${name}.${Time.Stamp}.${extension}.tar.xz ./${folder}/${name}.Latest.${extension}.tar.xz`;
 };
 
@@ -68,6 +73,7 @@ const AltervistaFullBackup = async (domain) => {
 	const [user, pass, key] = Secrets[`${domain.replaceAll('.', '_')}_Backup_Tokens`].split(':');
 	cd(`./${domain}-Git`);
 	await $`rclone sync ${domain}:/ ./www/wp-content/ --progress || true`;
+	await $`rm -f ./www/wp-content/uploads/iawp-geo-db.mmdb || true`; // file > 100MB, can't be pushed
 	await $`curl -u ${user}:${pass} https://${domain}/wp-json/octt-export-rest/v1/xrss-export?token=${key} > ./WordPress.xml || true`;
 	await GitPullPush();
 };
@@ -104,18 +110,21 @@ const Work = async (jobName) => {
 ////////////////////////////////////////////////////////////////////////////////
 
 Jobs.Local_MiscSimpleBackups = async () => {
+	async function Local_Memos () {
+		await $`sudo docker stop memos`;
+		await SimpleBackup('memos');
+		await $`sudo docker start memos`;
+	}
 	await SimpleBackup('FreshRSS', 'www');
 	await SimpleBackup('n8n-data');
 	await SimpleBackup('script-server');
 	await SimpleBackup('docker-mailserver');
-	await $`sudo docker stop memos`;
-	await SimpleBackup('memos');
-	await $`sudo docker start memos`;
+	await Local_Memos();
 };
 
 Jobs.Local_Shiori = async () => {
 	await SimpleBackup('shiori-data', 'Shiori');
-	await $`rm -v ./shiori-data/Latest.d/archive/* || true`;
+	await $`rm -vf ./shiori-data/Latest.d/archive/* || true`;
 };
 
 Jobs.Local_SpaccBBS = () => LampBackup('SpaccBBS', 'phpBB');
@@ -136,16 +145,41 @@ Jobs.Cloud_Doku = async () => {
 	await GitPullPush();
 };
 
+Jobs.Cloud_Memos = async () => {
+	EnsureFolder('./archivioctt-Git/docs/memos');
+	await $`rm -f * || true`;
+	await stream.Readable.fromWeb((await fetch('https://memos.octt.eu.org/memos.api.v1.MemoService/ExportMemos', {
+		headers: {
+			"content-type": "application/grpc-web+proto",
+			"cookie": Secrets.Memos_Backup_Cookie,
+		},
+		body: "\u0000\u0000\u0000\u0000\u0016\n\u0014creator == \"users/1\"",
+		method: "POST",
+	})).body).pipe(fs.createWriteStream('./Memos.zip'));
+	await $`unzip -o ./Memos.zip || true`; // zip has 9 extra bytes at the start, unzip handles it fine with a warning
+	await $`rm -f ./Memos.zip || true`;
+	await $`sh ../../scripts/memos-to-mkdocs.sh`;
+	await GitPullPush();
+};
+
 Jobs.Mixed_OctospaccAltervista = async () => {
 	await AltervistaFullBackup('octospacc.altervista.org');
 	cd('../microblog-mirror');
 		await $`rm -rf ./_posts ./assets/uploads/* || true`;
+	cd('../archivioctt-Git');
+		await $`rm -rf ./docs/microblog/posts || true`;
 	cd('../octospacc.altervista.org-Git');
-		await $`cp -r ./www/wp-content/octt-export-markdown/${Secrets.octospacc_altervista_org_MarkdownKey}/_posts ../microblog-mirror/_posts`;
+		for (const folder of ["microblog-mirror/_posts", "archivioctt-Git/docs/microblog/posts"]) {
+			await $`cp -r ./www/wp-content/octt-export-markdown/${Secrets.octospacc_altervista_org_MarkdownKey}/_posts ../${folder}`;
+		}
 		cd('./www/wp-content/uploads');
-		await $`cp -r $(seq 2020 $(date +%Y)) ../../../../microblog-mirror/assets/uploads/ || true`;
-	cd('../../../../microblog-mirror');
+			await $`cp -r $(seq 2020 $(date +%Y)) ../../../../microblog-mirror/assets/uploads/ || true`;
+	cd('../../../');
+	cd('../microblog-mirror');
 		await $`sh ./filter-fix-posts.sh`;
+		await GitPullPush();
+	cd('../archivioctt-Git');
+		await $`sh ./scripts/microblog-to-mkdocs.sh`;
 		await GitPullPush();
 };
 
@@ -245,6 +279,7 @@ const Main = async () => {
 	await Work('Cloud_SpaccBBSNodeBB');
 	await Work('Cloud_liminalgici');
 	await Work('Cloud_Doku');
+	await Work('Cloud_Memos');
 	await Work('Cloud_SpaccCraft');
 	await Work('Cloud_Private');
 };
