@@ -223,6 +223,7 @@ Jobs.Cloud_SpaccBBS = async () => {
 
 Jobs.Cloud_SpaccBBSNodeBB = async () => {
 	await FolderGoCopyForCloud('SpaccBBS-NodeBB', 'SpaccBBS-NodeBB-2024-Git');
+	await $`rm -rf ./SpaccBBS-NodeBB/.git || true`;
 	await $`cp ../SpaccBBS-NodeBB/Db.Latest.rdb.tar.xz ./Db.rdb.tar.xz`;
 	await ccencryptNow('./Db.rdb.tar.xz', Secrets.BackupKey_Git_SpaccBBSNodeBB);
 	await GitPullPush();
