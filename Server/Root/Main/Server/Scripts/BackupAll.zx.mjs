@@ -145,7 +145,8 @@ Jobs.Cloud_Doku = async () => {
 	await GitPullPush();
 };
 
-Jobs.Cloud_Memos = async () => {
+// NOTE: embedded media is not handled (neither included nor downloaded)
+Jobs.archivioctt_Memos = async () => {
 	EnsureFolder('./archivioctt-Git/docs/memos');
 	await $`rm -f * || true`;
 	await stream.Readable.fromWeb((await fetch('https://memos.octt.eu.org/memos.api.v1.MemoService/ExportMemos', {
@@ -160,6 +161,34 @@ Jobs.Cloud_Memos = async () => {
 	await $`rm -f ./Memos.zip || true`;
 	await $`sh ../../scripts/memos-to-mkdocs.sh`;
 	await GitPullPush();
+};
+
+// NOTE: post tags, post location, and media license are not handled; media is not redownloaded
+Jobs.archivioctt_Pixelfed = async () => {
+	EnsureFolder('./archivioctt-Git/docs/pictures/posts');
+	const allPosts = [];
+	for (const identity of ["liminalgici.spacc.eu.org:664033260845064193"]) {
+		let offset = '';
+		const [instance, account] = identity.split(':');
+		while (true) {
+			const posts = (await (await fetch(`https://${instance}/api/pixelfed/v1/accounts/${account}/statuses?only_media=true&max_id=${offset}`)).json());
+			if (posts.length > 0) {
+				offset = posts.slice(-1)[0].id;
+				allPosts.push(...posts);
+			} else {
+				break;
+			}
+		}
+	}
+	for (const post of allPosts) {
+		fs.writeFileSync(`${post.id}.md`, `---
+canonical_url: ${post.url}
+date: ${post.created_at}
+tags: ${post.tags.map(tag => `\n  - ${tag.name}`).join('')}
+---
+\n${post.content.replaceAll('<br />', '')}
+\n${post.media_attachments.map(media => `![${media.description}](${media.url})`).join('\n\n')}`);
+	}
 };
 
 Jobs.Mixed_OctospaccAltervista = async () => {
@@ -280,9 +309,15 @@ const Main = async () => {
 	await Work('Cloud_SpaccBBSNodeBB');
 	await Work('Cloud_liminalgici');
 	await Work('Cloud_Doku');
-	await Work('Cloud_Memos');
 	await Work('Cloud_SpaccCraft');
 	await Work('Cloud_Private');
+
+	//await Work('archivioctt_Memos');
+	//await Work('archivioctt_Pixelfed');
+	//await Work('archivioctt_WordPress');
+	// POST https://public-api.wordpress.com/rest/v1.1/sites/SITEID/exports/start
+	// GET https://public-api.wordpress.com/rest/v1.1/sites/SITEID/exports/0?
+	// ... {status:"running"} ... {status:"finished","attachment_url":"...zip"}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
