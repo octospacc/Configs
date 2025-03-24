@@ -233,10 +233,13 @@ Jobs.Cloud_ServerBackupLimited = async () => {
 	await BackPathCrypt('script-server', Secrets.BackupKey_Git_scriptserver);
 	await BackPathCrypt('docker-mailserver', Secrets.BackupKey_Git_dockermailserver);
 	await BackPathCrypt('memos', Secrets.BackupKey_Git_memos);
+	await $`split --bytes=95M --numeric-suffixes ./FreshRSS.tar.xz.cpt FreshRSS.tar.xz.cpt.`;
+	await $`rm ./FreshRSS.tar.xz.cpt`;
 	await GitPullPush();
 };
 
 Jobs.Cloud_ArticlesBackupPrivate = async () => {
+	await GitReclone('Articles-Backup-Private', 'https://gitlab.com/octospacc/Articles-Backup-Private/');
 	await FolderGoCopyForCloud('shiori-data', 'Articles-Backup-Private');
 	await GitPullPush();
 };
