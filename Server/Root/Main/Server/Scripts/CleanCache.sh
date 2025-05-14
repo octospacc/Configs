@@ -1,5 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 set -e
-rm -rf /root/.cache /home/*/.cache || true
-rm -rf /var/log/*.{4,5,6,7,8,9}.* || true
-docker system prune -af
+if [ "$(id -u)" != 0 ]; then
+	echo "Must run as root"
+	exit 1
+fi
+
+docker exec -it pihole rm -f /var/log/pihole/pihole.log
+docker restart pihole
+
+docker system prune -f
