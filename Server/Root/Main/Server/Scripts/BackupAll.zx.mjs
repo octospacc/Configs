@@ -3,6 +3,7 @@
 const BackupsBase = '/Main/Backup';
 const GenericBrowserUserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0';
 const Time = new Date();
+// const Single = argv._[0];
 
 Time.Stamp = `${Time.getFullYear()}-${(Time.getMonth() + 1).toString().padStart(2, '0')}-${Time.getDate().toString().padStart(2, '0')}`;
 cd(BackupsBase);
@@ -40,6 +41,7 @@ const EnsureFolder = async (path) => {
 
 //const GitPullPush = async (user) => await ExecAs(`git pull; git add . && git commit -m "Auto-Backup ${Time}" && git push || true`, user);
 const GitReclone = async (path, url, branch) => await $`rm -rf ${path}.old || true; mv ${path} ${path}.old; git clone --depth 1 --single-branch ${url} ${branch ? `--branch ${branch}` : ''}`;
+// const GitPullPush = async () => await $`git stash; git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 const GitPullPush = async () => await $`git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 
 const BackPathCrypt = async (Folder, Key, Ext) => {
@@ -95,14 +97,16 @@ const FolderGoCopyForCloud = async (src, dst) => {
 
 const ScriptAndGitBackup = async (folder, command, program='sh') => {
 	cd(folder);
+	await $`git stash`;
 	await $`${program} ${command}`;
 	await GitPullPush();
 };
 
 const Work = async (jobName) => {
 	const filterText = process.argv.slice(-1)[0];
-	const isFilter = filterText.endsWith('_');
-	if (!isFilter || (isFilter && jobName.startsWith(filterText))) {
+	const isKindFilter = filterText.endsWith('_');
+	const isNameFilter = filterText.startsWith('_');
+	if ((!isKindFilter && !isNameFilter) || (isKindFilter && jobName.startsWith(filterText)) || (isNameFilter && jobName.endsWith(filterText))) {
 		return await within(Jobs[jobName]);
 	}
 }
@@ -221,9 +225,9 @@ Jobs.Mixed_SpacccraftAltervista = async () => {
 };
 
 // TODO: everything
-Jobs.Exter_WikiSpacc = async () => {
-	// ...
-};
+// Jobs.Exter_WikiSpacc = async () => {
+// 	// ...
+// };
 
 Jobs.Cloud_ServerBackupLimited = async () => {
 	await GitReclone('Server-Backup-Limited', 'https://gitlab.com/octospacc/Server-Backup-Limited/');
@@ -273,6 +277,8 @@ Jobs.Cloud_liminalgici = async () => {
 	await GitPullPush();
 };
 
+Jobs.Cloud_Pignio = () => $`/Main/Server/Pignio/data/sync.zx.mjs`;
+
 Jobs.Cloud_SpaccCraft = async () => {
 	const McServer="SpaccCraft";
 	const McEdition="Beta-1.7.3";
@@ -312,6 +318,7 @@ const Main = async () => {
 	await Work('Cloud_SpaccBBSNodeBB');
 	await Work('Cloud_liminalgici');
 	await Work('Cloud_Doku');
+	await Work('Cloud_Pignio');
 	await Work('Cloud_SpaccCraft');
 	await Work('Cloud_Private');
 

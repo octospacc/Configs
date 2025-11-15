@@ -23,8 +23,14 @@ chown -R 100033:100033 /Main/Server/www
 chmod -R 777 /Main/Server/www
 
 chmod -R 777 /Main/Server/Bots
+chmod -R 777 /Main/Server/Pignio
 chmod -R 777 /Main/Server/WuppiMini
 chmod -R 777 /Main/Server/SpaccBBS-NodeBB
+chmod -R 777 /Main/Server/mpgram-web
+chmod -R 777 /Main/Server/Sharkey/files
+chmod -R 777 /Main/Server/Aggregodo # /data
+
+chmod -R 777 /media/320GB/NintendoSwitchAlbum/
 
 chown -R tux:tux /Main/Backup/
 chown -R tux:tux /Main/Clouds/octt/

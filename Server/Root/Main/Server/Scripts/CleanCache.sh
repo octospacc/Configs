@@ -1,12 +1,17 @@
 #!/bin/sh
-set -e
+#set -e
 if [ "$(id -u)" != 0 ]; then
 	echo "Must run as root"
 	exit 1
 fi
 
-apt autoremove --purge
-lxc-attach Debian2023 -- apt autoremove --purge
+apt autoremove --purge -y
+apt clean -y
+rm -rf /var/lib/apt/lists/*
+
+lxc-attach Debian2023 -- apt autoremove --purge -y
+lxc-attach Debian2023 -- apt clean -y
+lxc-attach Debian2023 -- rm -rf /var/lib/apt/lists/*
 
 rm -rf /Main/Backup/*.old
 
