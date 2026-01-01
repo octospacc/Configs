@@ -58,7 +58,7 @@ T.is = (question) => {
 //T.is({ h:'03', m_:'10' }) && (T.D % 3 === 0)
 //	&& Work('Backup', ()=>{ $`zx /Main/Server/Scripts/BackupAll.zx.mjs` });
 
-T.is({ _D_:'9', h:'02', m_:'30' })
+T.is({ _D_:'9', h:'04', m_:'30' })
 	&& Work('Certs', ()=>{ $`sh /Main/Server/Scripts/RenewCerts.sh` });
 
 ///////////////////////////////////////

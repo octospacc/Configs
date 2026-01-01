@@ -1,6 +1,8 @@
 #!/usr/bin/env zx
 
+const ServerBase = '/Main/Server';
 const BackupsBase = '/Main/Backup';
+const BackupsSecond = '/media/320GB/Backup';
 const GenericBrowserUserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0';
 const Time = new Date();
 // const Single = argv._[0];
@@ -44,6 +46,9 @@ const GitReclone = async (path, url, branch) => await $`rm -rf ${path}.old || tr
 // const GitPullPush = async () => await $`git stash; git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 const GitPullPush = async () => await $`git pull; git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
 
+const GitPull = async () => await $`git stash; git pull`;
+const GitPush = async () => await $`git add .; git commit -m "Auto-Backup ${Time}" || true; git push || true`;
+
 const BackPathCrypt = async (Folder, Key, Ext) => {
 	Ext ||= '.tar.xz';
 	const File = `${Folder}${Ext}`;
@@ -57,18 +62,20 @@ const SimpleBackup = async (Folder, Prefix) => {
 	await $`mkdir -vp ./${Folder}`;
 	await $`rm -f ./${Folder}/Latest.tar.xz || true`;
 	await $`rm -rf ./${Folder}/Latest.d || true`;
-	await $`cp -rp /Main/Server/${Prefix || ''}/${Folder} ./${Folder}/Latest.d`;
+	await $`cp -rp /${ServerBase}/${Prefix || ''}/${Folder} ./${Folder}/Latest.d`;
 	await SimpleCompress(`./${Folder}/${Time.Stamp}`, `./${Folder}/Latest.d`);
 	await $`ln -s ./${Time.Stamp}.tar.xz ./${Folder}/Latest.tar.xz`;
 };
 
-const CompressAndUpdate = async (folder, name, extension) => {
+const CompressAndUpdate = async (folder, name, extension, single=false) => {
 	await SimpleCompress(
-		`./${folder}/${name}.${Time.Stamp}.${extension}`,
+		`./${folder}/${name}.${single ? 'Latest' : Time.Stamp}.${extension}`,
 		`./${folder}/${name}.Latest.${extension}`,
 	);
-	await $`rm -f ./${folder}/${name}.Latest.${extension}.tar.xz || true`;
-	await $`ln -s ./${name}.${Time.Stamp}.${extension}.tar.xz ./${folder}/${name}.Latest.${extension}.tar.xz`;
+	if (!single) {
+		await $`rm -f ./${folder}/${name}.Latest.${extension}.tar.xz || true`;
+		await $`ln -s ./${name}.${Time.Stamp}.${extension}.tar.xz ./${folder}/${name}.Latest.${extension}.tar.xz`;
+	}
 };
 
 const AltervistaFullBackup = async (domain) => {
@@ -82,8 +89,12 @@ const AltervistaFullBackup = async (domain) => {
 
 const LampBackup = async (folder, table) => {
 	await SimpleBackup(folder, 'www');
-	await $`lxc-attach Debian2023 -- mariadb-dump ${table || folder} > ./${folder}/Db.Latest.sql`;
-	await CompressAndUpdate(folder, 'Db', 'sql');
+	await LampDbBackup(table, folder);
+};
+
+const LampDbBackup = async (table, folder='', alt=false) => {
+	await $`lxc-attach Debian2023 -- mariadb-dump ${table} > ./${folder}/Db.Latest.sql`;
+	await CompressAndUpdate(folder, 'Db', 'sql', alt);
 };
 
 const FolderGoCopyForCloud = async (src, dst) => {
@@ -95,11 +106,16 @@ const FolderGoCopyForCloud = async (src, dst) => {
 	await $`rm -rf ./${src}/.git || true`;
 };
 
+const GitFolderBackup = async (folder) => {
+	cd(folder);
+	await GitPush();
+};
+
 const ScriptAndGitBackup = async (folder, command, program='sh') => {
 	cd(folder);
-	await $`git stash`;
+	await GitPull();
 	await $`${program} ${command}`;
-	await GitPullPush();
+	await GitPush();
 };
 
 const Work = async (jobName) => {
@@ -126,10 +142,10 @@ Jobs.Local_MiscSimpleBackups = async () => {
 	await Local_Memos();
 };
 
-Jobs.Local_Shiori = async () => {
-	await SimpleBackup('shiori-data', 'Shiori');
-	await $`rm -vf ./shiori-data/Latest.d/archive/* || true`;
-};
+// Jobs.Local_Shiori = async () => {
+// 	await SimpleBackup('shiori-data', 'Shiori');
+// 	await $`rm -vf ./shiori-data/Latest.d/archive/* || true`;
+// };
 
 Jobs.Local_SpaccBBS = () => LampBackup('SpaccBBS', 'phpBB');
 
@@ -139,15 +155,15 @@ Jobs.Local_SpaccBBSNodeBB = async () => {
 	await CompressAndUpdate('SpaccBBS-NodeBB', 'Db', 'rdb');
 };
 
-Jobs.Local_liminalgici = () => LampBackup('pixelfed_liminalgici');
+// Jobs.Local_liminalgici = () => LampBackup('pixelfed_liminalgici');
 
-Jobs.Local_Doku = () => SimpleBackup('dokuwiki', 'www');
+// Jobs.Local_Doku = () => SimpleBackup('dokuwiki', 'www');
 
-Jobs.Cloud_Doku = async () => {
-	await FolderGoCopyForCloud('dokuwiki', 'doku.spacc.eu.org-Git');
-	await $`rm -rf ./dokuwiki/data/cache || true`;
-	await GitPullPush();
-};
+// Jobs.Cloud_Doku = async () => {
+// 	await FolderGoCopyForCloud('dokuwiki', 'doku.spacc.eu.org-Git');
+// 	await $`rm -rf ./dokuwiki/data/cache || true`;
+// 	await GitPullPush();
+// };
 
 // NOTE: embedded media is not handled (neither included nor downloaded)
 Jobs.archivioctt_Memos = async () => {
@@ -219,6 +235,42 @@ Jobs.Mixed_OctospaccAltervista = async () => {
 Jobs.Mixed_Configs = () => ScriptAndGitBackup('./Configs', './Server/Repo.Update.sh');
 Jobs.Mixed_Snippets = () => ScriptAndGitBackup('./Snippets', './.CopyFromServer.sh');
 
+// Jobs.Mixed_Doku = () => GitFolderBackup(`${ServerBase}/www/dokuwiki`);
+Jobs.Mixed_Shiori = () => GitFolderBackup(`${ServerBase}/Shiori`);
+
+Jobs.Mixed_Sharkey = async () => {
+	cd(`${ServerBase}/Sharkey`);
+	await $`sudo docker exec -it sharkey_db_1 pg_dump -U example-misskey-user misskey | split -b 50M -d - db.sql.`;
+	await GitPush();
+};
+
+Jobs.Mixed_Doku = async () => {
+	cd(`${BackupsSecond}/doku.spacc.eu.org`);
+	await $`rm -rf ./dokuwiki.bak`;
+	await $`cp -r  ./dokuwiki ./dokuwiki.bak || true`;
+	await $`rm -rf ./dokuwiki`;
+	await $`cp -r  ${ServerBase}/www/dokuwiki ./dokuwiki`;
+	await GitPush();
+};
+
+Jobs.Mixed_liminalgici = async () => {
+	cd(`${BackupsSecond}/liminalgici.spacc.eu.org`);
+	await $`rm -rf ./*.bak`;
+	await $`cp -r  ./pixelfed_liminalgici ./pixelfed_liminalgici.bak || true`;
+	await $`rm -rf ./pixelfed_liminalgici`;
+	await $`cp -r  ${ServerBase}/www/pixelfed_liminalgici ./pixelfed_liminalgici`;
+	await $`mv ./Db.sql.tar.xz.cpt  ./Db.sql.tar.xz.cpt.bak  || true`;
+	await $`mv ./Db.sql.tar.xz.info ./Db.sql.tar.xz.info.bak || true`;
+	await LampDbBackup('pixelfed_liminalgici', '', true);
+	await $`mv ./Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
+	await SimpleCompress('./pixelfed_liminalgici/config');
+	await $`rm -rf ./pixelfed_liminalgici/config || true`;
+	for (const File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
+		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
+	};
+	// await GitPush();
+};
+
 // TODO: setup FTP access and Cookie
 Jobs.Mixed_SpacccraftAltervista = async () => {
 	await AltervistaFullBackup('spacccraft.altervista.org', Secrets.SpacccraftAltervista_Backup_Cookie);
@@ -242,11 +294,11 @@ Jobs.Cloud_ServerBackupLimited = async () => {
 	await GitPullPush();
 };
 
-Jobs.Cloud_ArticlesBackupPrivate = async () => {
-	await GitReclone('Articles-Backup-Private', 'https://gitlab.com/octospacc/Articles-Backup-Private/');
-	await FolderGoCopyForCloud('shiori-data', 'Articles-Backup-Private');
-	await GitPullPush();
-};
+// Jobs.Cloud_ArticlesBackupPrivate = async () => {
+// 	await GitReclone('Articles-Backup-Private', 'https://gitlab.com/octospacc/Articles-Backup-Private/');
+// 	await FolderGoCopyForCloud('shiori-data', 'Articles-Backup-Private');
+// 	await GitPullPush();
+// };
 
 Jobs.Cloud_SpaccBBS = async () => {
 	await FolderGoCopyForCloud('SpaccBBS', 'SpaccBBS-Backup-phpBB-2023');
@@ -265,17 +317,17 @@ Jobs.Cloud_SpaccBBSNodeBB = async () => {
 	await GitPullPush();
 };
 
-Jobs.Cloud_liminalgici = async () => {
-	await FolderGoCopyForCloud('pixelfed_liminalgici', 'liminalgici.spacc.eu.org-Git');
-	await $`cp ../pixelfed_liminalgici/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
-	await SimpleCompress('./pixelfed_liminalgici/config');
-	await $`rm -rf ./pixelfed_liminalgici/config || true`;
-	for (const File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
-		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
-	};
-	//await $`rm ./pixelfed_liminalgici/storage/app/public/m/.gitignore || true`;
-	await GitPullPush();
-};
+// Jobs.Cloud_liminalgici = async () => {
+// 	await FolderGoCopyForCloud('pixelfed_liminalgici', 'liminalgici.spacc.eu.org-Git');
+// 	await $`cp ../pixelfed_liminalgici/Db.Latest.sql.tar.xz ./Db.sql.tar.xz`;
+// 	await SimpleCompress('./pixelfed_liminalgici/config');
+// 	await $`rm -rf ./pixelfed_liminalgici/config || true`;
+// 	for (const File of ['Db.sql.tar.xz', './pixelfed_liminalgici/.env', './pixelfed_liminalgici/config.tar.xz']) {
+// 		await ccencryptNow(`./${File}`, Secrets.BackupKey_Git_liminalgici);
+// 	};
+// 	//await $`rm ./pixelfed_liminalgici/storage/app/public/m/.gitignore || true`;
+// 	await GitPullPush();
+// };
 
 Jobs.Cloud_Pignio = () => $`/Main/Server/Pignio/data/sync.zx.mjs`;
 
@@ -300,24 +352,28 @@ Jobs.Cloud_Private = () => $`sudo -u tux rclone sync /Main/Clouds/octt GDrive-Un
 
 const Main = async () => {
 	await Work('Local_MiscSimpleBackups');
-	await Work('Local_Shiori');
+	// await Work('Local_Shiori');
 	await Work('Local_SpaccBBS');
 	await Work('Local_SpaccBBSNodeBB');
-	await Work('Local_liminalgici');
-	await Work('Local_Doku');
+	// await Work('Local_liminalgici');
+	// await Work('Local_Doku');
 
 	await Work('Mixed_Configs');
 	await Work('Mixed_Snippets');
+	await Work('Mixed_Doku');
+	await Work('Mixed_Shiori');
+	await Work('Mixed_Sharkey');
+	await Work('Mixed_liminalgici');
 	await Work('Mixed_OctospaccAltervista');
 	//await Work('Mixed_SpacccraftAltervista');
 	//await Work('Exter_WikiSpacc');
 
 	await Work('Cloud_ServerBackupLimited');
-	await Work('Cloud_ArticlesBackupPrivate');
+	// await Work('Cloud_ArticlesBackupPrivate');
 	await Work('Cloud_SpaccBBS');
 	await Work('Cloud_SpaccBBSNodeBB');
-	await Work('Cloud_liminalgici');
-	await Work('Cloud_Doku');
+	// await Work('Cloud_liminalgici');
+	// await Work('Cloud_Doku');
 	await Work('Cloud_Pignio');
 	await Work('Cloud_SpaccCraft');
 	await Work('Cloud_Private');
