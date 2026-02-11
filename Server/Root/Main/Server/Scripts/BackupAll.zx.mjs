@@ -27,8 +27,8 @@ for (let line of (await fs.readFile('./.BackupSecrects.sec', 'utf8')).split('\n'
 
 const Hash2 = async (BaseKey, Salt) => (await $`echo "${BaseKey}$(echo ${Salt} | sha512sum | base64 -w0)" | sha512sum | base64 -w0`).toString().trim();
 
-const ccencryptNow = async (File, BaseKey) => {
-	await $`ccrypt -e -f -K"${await Hash2(BaseKey, Time.Stamp)}" ${File}`;
+const ccencryptNow = async (File, BaseKey, Overwrite) => {
+	await $`ccrypt -e ${Overwrite ? '-f' : ''} -K"${await Hash2(BaseKey, Time.Stamp)}" ${File}`;
 	$`echo ${Time.Stamp} > ${File}.info`;
 };
 
@@ -130,16 +130,17 @@ const Work = async (jobName) => {
 ////////////////////////////////////////////////////////////////////////////////
 
 Jobs.Local_MiscSimpleBackups = async () => {
-	async function Local_Memos () {
-		await $`sudo docker stop memos`;
-		await SimpleBackup('memos');
-		await $`sudo docker start memos`;
-	}
+	// async function Local_Memos () {
+		// await $`sudo docker stop memos`;
+		// await SimpleBackup('memos');
+		// await $`sudo docker start memos`;
+	// }
 	await SimpleBackup('FreshRSS', 'www');
 	await SimpleBackup('n8n-data');
 	await SimpleBackup('script-server');
 	await SimpleBackup('docker-mailserver');
-	await Local_Memos();
+	// await Local_Memos();
+	// await Jobs.Local_Memos();
 };
 
 // Jobs.Local_Shiori = async () => {
@@ -148,6 +149,12 @@ Jobs.Local_MiscSimpleBackups = async () => {
 // };
 
 Jobs.Local_SpaccBBS = () => LampBackup('SpaccBBS', 'phpBB');
+
+/* Jobs.Local_Memos = async () => {
+	await $`sudo docker stop memos`;
+	await SimpleBackup('memos');
+	await $`sudo docker start memos`;
+}; */
 
 Jobs.Local_SpaccBBSNodeBB = async () => {
 	await SimpleBackup('SpaccBBS-NodeBB');
@@ -166,7 +173,7 @@ Jobs.Local_SpaccBBSNodeBB = async () => {
 // };
 
 // NOTE: embedded media is not handled (neither included nor downloaded)
-Jobs.archivioctt_Memos = async () => {
+Jobs.archivioctt_theMemos = async () => {
 	EnsureFolder('./archivioctt-Git/docs/memos');
 	await $`rm -f * || true`;
 	await stream.Readable.fromWeb((await fetch('https://memos.octt.eu.org/memos.api.v1.MemoService/ExportMemos', {
@@ -241,6 +248,15 @@ Jobs.Mixed_Shiori = () => GitFolderBackup(`${ServerBase}/Shiori`);
 Jobs.Mixed_Sharkey = async () => {
 	cd(`${ServerBase}/Sharkey`);
 	await $`sudo docker exec -it sharkey_db_1 pg_dump -U example-misskey-user misskey | split -b 50M -d - db.sql.`;
+	await GitPush();
+};
+
+Jobs.Mixed_Memos = async () => {
+	cd(`${ServerBase}/memos`);
+	await $`sudo docker stop memos`;
+	await SimpleCompress('./memos_prod.db');
+	await ccencryptNow('./memos_prod.db.tar.xz', Secrets.BackupKey_Git_memos);
+	await $`sudo docker start memos`;
 	await GitPush();
 };
 
@@ -357,10 +373,12 @@ const Main = async () => {
 	await Work('Local_SpaccBBSNodeBB');
 	// await Work('Local_liminalgici');
 	// await Work('Local_Doku');
+	// await Work('Local_Memos');
 
 	await Work('Mixed_Configs');
 	await Work('Mixed_Snippets');
 	await Work('Mixed_Doku');
+	await Work('Mixed_Memos');
 	await Work('Mixed_Shiori');
 	await Work('Mixed_Sharkey');
 	await Work('Mixed_liminalgici');
